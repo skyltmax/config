@@ -2,17 +2,23 @@
 
 Gem::Specification.new do |s|
   s.name          = "skyltmax_config"
-  s.version       = "0.0.4"
+  s.version       = "0.0.5"
+  s.authors       = ["Signmax AB"]
+  s.email         = ["team@signomatic.ee"]
   s.platform      = Gem::Platform::RUBY
-  s.required_ruby_version = ">= 3.4.0"
-  s.summary       = "Skyltmax shared config"
+
+  s.required_ruby_version = ">= 3.4"
+  s.required_rubygems_version = ">= 3.2"
+
+  s.summary       = "Reasonable Rubocop configs."
   s.homepage      = "https://github.com/skyltmax/config"
-  s.authors       = ["Skyltmax"]
   s.license       = "MIT"
+
   s.metadata      = {
-    "homepage_uri"    => "https://github.com/skyltmax/config#readme",
-    "source_code_uri" => "https://github.com/skyltmax/config",
-    "bug_tracker_uri" => "https://github.com/skyltmax/config/issues",
+    "homepage_uri"      => "https://github.com/skyltmax/config#readme",
+    "source_code_uri"   => "https://github.com/skyltmax/config",
+    "bug_tracker_uri"   => "https://github.com/skyltmax/config/issues",
+    "allowed_push_host" => "https://rubygems.org",
   }
 
   # include all tracked files so packaged gem mirrors the repo's config assets

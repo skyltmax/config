@@ -1,8 +1,12 @@
 {
   "name": "@signmax/config",
-  "version": "0.0.4",
-  "description": "Skyltmax common configs",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "0.0.5",
+  "description": "Reasonable ESLint, Prettier, and TypeScript configs.",
   "license": "MIT",
+  "author": "Signmax AB <team@signomatic.ee> (https://skyltmax.se/)",
   "homepage": "https://github.com/skyltmax/config#readme",
   "repository": {
     "type": "git",
@@ -11,6 +15,14 @@
   "bugs": {
     "url": "https://github.com/skyltmax/config/issues"
   },
+  "keywords": [
+    "config",
+    "eslint",
+    "prettier",
+    "typescript",
+    "signmax",
+    "skyltmax"
+  ],
   "main": "index.js",
   "type": "module",
   "exports": {

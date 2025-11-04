@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+### [0.0.5] - 2025-11-04
+- Fix rubygems attestation.
+
 ### [0.0.4] - 2025-11-04
 - Fix rubygems release.
 

@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name          = "skyltmax_config"
-  s.version       = "0.0.1"
+  s.version       = "0.0.2"
   s.platform      = Gem::Platform::RUBY
   s.required_ruby_version = ">= 3.4.0"
   s.summary       = "Skyltmax shared config"
@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
   end
   s.require_path = "lib"
 
-  s.add_dependency "rubocop"
-  s.add_dependency "rubocop-performance"
+  s.add_dependency "rubocop", ">= 1.81.0", "< 2"
+  s.add_dependency "rubocop-performance", ">= 1.26.0", "< 2"
+  s.add_dependency "rubocop-rails", ">= 2.33.0", "< 3"
 end

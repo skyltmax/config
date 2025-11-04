@@ -28,7 +28,7 @@ inherit_gem:
 The easiest way to use this config is in your `package.json`:
 
 ```json
-"prettier": "@skyltmax/config/prettier"
+"prettier": "@signmax/config/prettier"
 ```
 
 <details>
@@ -40,7 +40,7 @@ can override it using regular JavaScript stuff.
 Create a `.prettierrc.js` file in your project root with the following content:
 
 ```js
-import defaultConfig from "skyltmax/config/prettier"
+import defaultConfig from "signmax/config/prettier"
 
 /** @type {import("prettier").Options} */
 export default {
@@ -57,7 +57,7 @@ Create a `tsconfig.json` file in your project root with the following content:
 
 ```json
 {
-  "extends": ["@skyltmax/config/typescript"],
+  "extends": ["@signmax/config/typescript"],
   "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
   "compilerOptions": {
     "paths": {
@@ -71,7 +71,7 @@ Create a `tsconfig.json` file in your project root with the following content:
 Create a `reset.d.ts` file in your project with these contents:
 
 ```typescript
-import "@skyltmax/config/reset.d.ts"
+import "@signmax/config/reset.d.ts"
 ```
 
 <details>
@@ -86,7 +86,7 @@ Learn more from [the TypeScript docs here](https://www.typescriptlang.org/tsconf
 Create a `eslint.config.js` file in your project root with the following content:
 
 ```js
-import { config as defaultConfig } from "@skyltmax/config/eslint"
+import { config as defaultConfig } from "@signmax/config/eslint"
 
 /** @type {import("eslint").Linter.Config[]} */
 export default [...defaultConfig]
@@ -106,13 +106,11 @@ positives.
 
 ## Publishing
 
-This repo publishes a Ruby gem (skyltmax_config) and an npm package (@skyltmax/config) whenever a GitHub Release is published. A manual run is also available.
+This repo publishes a Ruby gem (skyltmax_config) and an npm package (@signmax/config) whenever a GitHub Release is published. A manual run is also available.
 
 Setup (one-time):
 
-- In repository Settings → Secrets and variables → Actions, add:
-  - NPM_TOKEN: npm automation token with publish permission for the @skyltmax scope
-  - RUBYGEMS_API_KEY: RubyGems API key with push access to skyltmax_config
+- In rubygems and npmjs configure trusted publishing.
 - Ensure package and gem versions match. The workflow verifies that the git tag version equals both versions.
 
 How to release:

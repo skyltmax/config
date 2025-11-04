@@ -1,0 +1,35 @@
+plugins:
+  - rubocop-rails
+
+AllCops:
+  TargetRailsVersion: 8.1
+  UseCache: true
+  SuggestExtensions: false
+  NewCops: disable
+
+Rails:
+  Enabled: true
+
+# When we use these we know what we're doing
+Rails/SkipsModelValidations:
+  Enabled: false
+
+Rails/ReversibleMigration:
+  Enabled: false
+
+Rails/OutputSafety:
+  Enabled: false
+
+Rails/BulkChangeTable:
+  Enabled: false
+
+Rails/HelperInstanceVariable:
+  Enabled: false
+
+# buggy atm
+Rails/MatchRoute:
+  Enabled: false
+
+# buggy atm
+Rails/Delegate:
+  Enabled: false

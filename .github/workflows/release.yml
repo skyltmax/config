@@ -1,0 +1,97 @@
+name: Publish release
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  id-token: write # required for trusted publishing (npm & RubyGems)
+
+concurrency:
+  group: publish-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    name: Verify versions match tag
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Extract versions
+        id: versions
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          # Allow tags like v1.2.3 or 1.2.3
+          TAG_NO_V=${TAG#v}
+          echo "tag=${TAG_NO_V}" >> "$GITHUB_OUTPUT"
+
+          # package.json version via Node (works regardless of type: module)
+          PKG_VER=$(node -e "console.log(JSON.parse(require('fs').readFileSync('package.json','utf8')).version)")
+          echo "npm=${PKG_VER}" >> "$GITHUB_OUTPUT"
+
+          # gemspec version
+          GEM_VER=$(sed -n "s/^[[:space:]]*s\.version[[:space:]]*=[[:space:]]*\"\(.*\)\"[[:space:]]*$/\1/p" skyltmax_config.gemspec)
+          echo "gem=${GEM_VER}" >> "$GITHUB_OUTPUT"
+
+          echo "Tag:        $TAG_NO_V"
+          echo "npm:        $PKG_VER"
+          echo "RubyGems:   $GEM_VER"
+
+          if [[ "$PKG_VER" != "$TAG_NO_V" || "$GEM_VER" != "$TAG_NO_V" ]]; then
+            echo "Version mismatch: tag=$TAG_NO_V, npm=$PKG_VER, gem=$GEM_VER" >&2
+            exit 1
+          fi
+
+  publish_npm:
+    name: Publish to npm
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Ensure modern npm for OIDC trusted publishing
+        run: npm install -g npm@latest
+
+      - name: Publish to npm
+        run: |
+          # For scoped packages, ensure public access on first publish
+          npm publish --access public
+
+  publish_rubygems:
+    name: Publish to RubyGems
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+          bundler-cache: false
+
+      - name: Configure RubyGems credentials via OIDC
+        uses: rubygems/configure-rubygems-credentials@v1
+        with:
+          role-to-assume: ${{ vars.RUBYGEMS_OIDC_ROLE }}
+
+      - name: Build gem
+        run: |
+          gem build skyltmax_config.gemspec
+
+      - name: Push gem
+        run: |
+          gem push skyltmax_config-*.gem

@@ -8,6 +8,7 @@ Gem::Specification.new do |s|
   s.summary       = "Skyltmax shared config"
   s.homepage      = "https://github.com/skyltmax/config"
   s.authors       = ["Skyltmax"]
+  s.license       = "MIT"
   s.metadata      = {
     "homepage_uri"    => "https://github.com/skyltmax/config#readme",
     "source_code_uri" => "https://github.com/skyltmax/config",

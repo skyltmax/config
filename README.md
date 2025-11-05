@@ -16,9 +16,6 @@ npm install --save-dev @signmax/config
 pnpm add -D @signmax/config
 ```
 
-All required tools (ESLint, Prettier, TypeScript, and all plugins) are bundled as dependencies. This package is the
-single source of truth for all tooling versions—no need to install peer dependencies separately.
-
 ### Ruby
 
 Include the gem in your `Gemfile`:

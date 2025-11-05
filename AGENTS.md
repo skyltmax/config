@@ -501,9 +501,30 @@ This package uses a dual-publishing approach:
 
 ### Dependency Management
 
-This package bundles all required tooling as direct dependencies, making it the **single source of truth** for versions:
+This package uses **peer dependencies** to provide all required tooling while ensuring proper editor/IDE discovery:
 
-**Dependencies (all tooling bundled):**
+**Why Peer Dependencies?**
+
+1. **Editor Discovery:** Tools like VSCode, WebStorm, and others look for `prettier`, `eslint`, and `typescript` in the
+   project's root `node_modules`. When bundled as regular dependencies, they end up in
+   `node_modules/@signmax/config/node_modules`, which editors cannot find.
+
+2. **Automatic Installation:** Modern package managers with `autoInstallPeers` enabled (pnpm's default, npm 7+
+   configurable) automatically install peer dependencies, so users get a "single install" experience.
+
+3. **Hoisting:** Peer dependencies are hoisted to the root `node_modules`, making them discoverable by all tools and
+   editors.
+
+4. **Version Control:** This package controls the **exact** versions (no semver ranges) to ensure all consuming projects
+   get identical tool versions for reproducible linting/formatting/type-checking.
+
+**Structure:**
+
+- **peerDependencies:** All ESLint, Prettier, TypeScript tools and plugins with **exact versions** (no semver ranges)
+- **devDependencies:** Only dev-specific tools (`@types/react`, `npm-run-all`, `react`) - peer dependencies are
+  auto-installed by pnpm for local development
+
+**All tooling (declared as peer dependencies with exact versions):**
 
 - **ESLint & Core:** `eslint`, `@eslint/js`, `typescript-eslint`
 - **TypeScript ESLint:** `@typescript-eslint/eslint-plugin`, `@typescript-eslint/parser`, `@typescript-eslint/utils`
@@ -513,12 +534,18 @@ This package bundles all required tooling as direct dependencies, making it the 
 - **Testing:** `@vitest/eslint-plugin`, `eslint-plugin-testing-library`, `eslint-plugin-jest-dom`
 - **Utilities:** `globals`
 
-**Why this approach?**
+**Benefits:**
+
+**Benefits:**
 
 - ✅ **Version control:** Consuming projects get consistent, tested versions
-- ✅ **Simplified setup:** Single `npm install @signmax/config` gets everything
+- ✅ **Simplified setup:** Single `npm install @signmax/config` gets everything (with autoInstallPeers enabled)
 - ✅ **No version conflicts:** This package manages compatibility between tools
 - ✅ **Updates centralized:** Bump versions here, all projects benefit
+- ✅ **Editor compatibility:** Tools are hoisted to root `node_modules/` for VSCode, WebStorm, etc.
+
+**Note:** pnpm enables `autoInstallPeers` by default. For npm 7+, you may need to enable it with
+`npm config set auto-install-peers true` or install peers manually if warnings appear.
 
 **DevDependencies (development only):**
 

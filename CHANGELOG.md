@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+- fix: Move dependencies to peer dependencies.
+
 ### [0.0.7] - 2025-11-05
 
 - feat: Make prettier tailwind plugin optional.

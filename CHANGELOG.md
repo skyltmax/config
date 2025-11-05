@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+### [0.0.6] - 2025-11-05
+
 - fix: Add missing eslint-config-prettier dependency.
 
 ### [0.0.5] - 2025-11-04

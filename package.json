@@ -1,9 +1,9 @@
 {
   "name": "@signmax/config",
+  "version": "0.0.6",
   "publishConfig": {
     "access": "public"
   },
-  "version": "0.0.5",
   "description": "Reasonable ESLint, Prettier, and TypeScript configs.",
   "license": "MIT",
   "author": "Signmax AB <team@signomatic.ee> (https://skyltmax.se/)",

@@ -448,6 +448,37 @@ bundle exec rubocop --config rubocop.yml
 bundle exec rubocop --config rubocop.rails.yml
 ```
 
+### Continuous Integration
+
+The package uses GitHub Actions for CI/CD with two workflows:
+
+**CI Workflow (`.github/workflows/ci.yml`)** - Runs on PRs and pushes to main:
+
+1. **Validate JavaScript/TypeScript configs:**
+   - Runs `pnpm validate` (dogfooding - lints/formats/typechecks itself)
+   - Ensures ESLint, Prettier, and TypeScript configs work correctly
+
+2. **Validate Ruby configs:**
+   - Runs `bundle exec rubocop` (dogfooding - validates Rubocop configs)
+
+3. **Version sync check:**
+   - Verifies `package.json` and `skyltmax_config.gemspec` versions match
+   - Prevents version drift between npm and gem
+
+4. **Package installation test:**
+   - Packs the package with `pnpm pack`
+   - Installs in a test project
+   - Verifies all exports work (ESLint, Prettier, TypeScript, reset.d.ts)
+
+**Release Workflow (`.github/workflows/release.yml`)** - Publishes on GitHub Release:
+
+1. Verifies tag version matches both package.json and gemspec
+2. Publishes npm package with provenance (trusted publishing)
+3. Publishes RubyGems gem (trusted publishing)
+
+**Key CI principle:** Dogfooding is the primary validation strategy. The package validates itself using its own
+configurations, which ensures the configs are functional and catches issues early.
+
 ---
 
 ## Configuration

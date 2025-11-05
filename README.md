@@ -1,18 +1,33 @@
-# 👮 @skyltmax/config
+# 👮 Skyltmax Config
 
-**Reasonable ESLint, Prettier, TypeScript, and Rubocop configs**
+**Reasonable ESLint, Prettier, TypeScript, and Rubocop configs.**
 
 Based on <a href="https://github.com/epicweb-dev/config">@epic-web/config</a>.
 
-## Usage
+## Installation
 
-### Rubocop
+### JavaScript/TypeScript
+
+```bash
+npm install --save-dev @signmax/config
+# or
+pnpm add -D @signmax/config
+```
+
+All required tools (ESLint, Prettier, TypeScript, and all plugins) are bundled as dependencies. This
+package is the single source of truth for all tooling versions—no need to install peer dependencies separately.
+
+### Ruby
 
 Include the gem in your `Gemfile`:
 
 ```rb
 gem "skyltmax_config"
 ```
+
+## Usage
+
+### Rubocop
 
 Inherit the configs from the gem in your `.rubocop.yml`:
 
@@ -106,7 +121,8 @@ positives.
 
 ## Publishing
 
-This repo publishes a Ruby gem (skyltmax_config) and an npm package (@signmax/config) whenever a GitHub Release is published. A manual run is also available.
+This repo publishes a Ruby gem (skyltmax_config) and an npm package (@signmax/config) whenever a GitHub Release is
+published. A manual run is also available.
 
 Setup (one-time):
 
@@ -126,11 +142,6 @@ What the workflow does:
 - Verifies tag version matches package.json and gemspec
 - Publishes the npm package with provenance enabled
 - Builds and pushes the gem to RubyGems
-
-Notes:
-
-- For first-time publish of a scoped npm package, access is set to public by the workflow.
-- If your npm org enforces 2FA, the token must be an automation token.
 
 ## License
 

@@ -134,14 +134,14 @@ Setup (one-time):
 How to release:
 
 1. Update versions:
-   - package.json: "version": x.y.z
-   - skyltmax_config.gemspec: s.version = "x.y.z"
+   - `package.json`: `"version": "x.y.z"`
+   - `lib/skyltmax_config/version.rb`: `VERSION = "x.y.z"`
 2. Commit and push changes.
 3. Create a Git tag vX.Y.Z and a GitHub Release for that tag (or run the "Publish release" workflow with that ref).
 
 What the workflow does:
 
-- Verifies tag version matches package.json and gemspec
+- Verifies tag version matches package.json and version.rb
 - Publishes the npm package with provenance enabled
 - Builds and pushes the gem to RubyGems
 

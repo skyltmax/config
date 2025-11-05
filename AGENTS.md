@@ -462,7 +462,7 @@ The package uses GitHub Actions for CI/CD with two workflows:
    - Runs `bundle exec rubocop` (dogfooding - validates Rubocop configs)
 
 3. **Version sync check:**
-   - Verifies `package.json` and `skyltmax_config.gemspec` versions match
+   - Verifies `package.json` and `lib/skyltmax_config/version.rb` versions match
    - Prevents version drift between npm and gem
 
 4. **Package installation test:**
@@ -472,7 +472,7 @@ The package uses GitHub Actions for CI/CD with two workflows:
 
 **Release Workflow (`.github/workflows/release.yml`)** - Publishes on GitHub Release:
 
-1. Verifies tag version matches both package.json and gemspec
+1. Verifies tag version matches both package.json and version.rb
 2. Publishes npm package with provenance (trusted publishing)
 3. Publishes RubyGems gem (trusted publishing)
 
@@ -536,7 +536,9 @@ The `files` field specifies what gets published to npm:
 
 ### Version Management
 
-**Critical:** Both `package.json` and `skyltmax_config.gemspec` must have matching versions.
+**Critical:** Versions must be kept in sync across `package.json` and `lib/skyltmax_config/version.rb`.
+
+The gemspec automatically reads the version from `lib/skyltmax_config/version.rb`, so you only need to update two files:
 
 ```json
 // package.json
@@ -546,11 +548,13 @@ The `files` field specifies what gets published to npm:
 ```
 
 ```ruby
-# skyltmax_config.gemspec
-Gem::Specification.new do |s|
-  s.version = "0.0.5"
+# lib/skyltmax_config/version.rb
+module SkyltmaxConfig
+  VERSION = "0.0.5"
 end
 ```
+
+**Note:** The `skyltmax_config.gemspec` uses `SkyltmaxConfig::VERSION` and does not need manual version updates.
 
 ### Publishing Process
 
@@ -558,7 +562,7 @@ Releases are automated via GitHub Actions when a release is published:
 
 1. **Update versions:**
    - `package.json`: `"version": "x.y.z"`
-   - `skyltmax_config.gemspec`: `s.version = "x.y.z"`
+   - `lib/skyltmax_config/version.rb`: `VERSION = "x.y.z"`
 
 2. **Update changelog:**
    - Add changes to `CHANGELOG.md`
@@ -566,7 +570,7 @@ Releases are automated via GitHub Actions when a release is published:
 3. **Commit and push:**
 
    ```bash
-   git add package.json skyltmax_config.gemspec CHANGELOG.md
+   git add package.json lib/skyltmax_config/version.rb CHANGELOG.md
    git commit -m "chore: bump version to x.y.z"
    git push
    ```
@@ -578,7 +582,7 @@ Releases are automated via GitHub Actions when a release is published:
 
 **The workflow:**
 
-- Verifies tag version matches both package and gem versions
+- Verifies tag version matches both package.json and version.rb
 - Publishes npm package with provenance
 - Builds and pushes Ruby gem to RubyGems
 

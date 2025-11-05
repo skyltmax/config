@@ -61,17 +61,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Verify package.json and gemspec versions match
+      - name: Verify package.json and version.rb versions match
         shell: bash
         run: |
           PKG_VER=$(node -e "console.log(JSON.parse(require('fs').readFileSync('package.json','utf8')).version)")
-          GEM_VER=$(sed -n "s/^[[:space:]]*s\.version[[:space:]]*=[[:space:]]*\"\(.*\)\"[[:space:]]*$/\1/p" skyltmax_config.gemspec)
+          GEM_VER=$(sed -n 's/^[[:space:]]*VERSION[[:space:]]*=[[:space:]]*"\(.*\)"[[:space:]]*$/\1/p' lib/skyltmax_config/version.rb)
 
           echo "package.json version: $PKG_VER"
-          echo "gemspec version:      $GEM_VER"
+          echo "version.rb version:   $GEM_VER"
 
           if [[ "$PKG_VER" != "$GEM_VER" ]]; then
-            echo "::error::Version mismatch: package.json=$PKG_VER, gemspec=$GEM_VER"
+            echo "::error::Version mismatch: package.json=$PKG_VER, version.rb=$GEM_VER"
             exit 1
           fi
 

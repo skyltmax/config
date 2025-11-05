@@ -34,8 +34,8 @@ jobs:
           PKG_VER=$(node -e "console.log(JSON.parse(require('fs').readFileSync('package.json','utf8')).version)")
           echo "npm=${PKG_VER}" >> "$GITHUB_OUTPUT"
 
-          # gemspec version
-          GEM_VER=$(sed -n "s/^[[:space:]]*s\.version[[:space:]]*=[[:space:]]*\"\(.*\)\"[[:space:]]*$/\1/p" skyltmax_config.gemspec)
+          # version.rb version
+          GEM_VER=$(sed -n 's/^[[:space:]]*VERSION[[:space:]]*=[[:space:]]*"\(.*\)"[[:space:]]*$/\1/p' lib/skyltmax_config/version.rb)
           echo "gem=${GEM_VER}" >> "$GITHUB_OUTPUT"
 
           echo "Tag:        $TAG_NO_V"

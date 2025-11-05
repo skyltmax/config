@@ -1,8 +1,11 @@
 # frozen_string_literal: true
 
+$LOAD_PATH.push File.expand_path("./lib", __dir__)
+require "skyltmax_config/version"
+
 Gem::Specification.new do |s|
   s.name          = "skyltmax_config"
-  s.version       = "0.0.5"
+  s.version       = SkyltmaxConfig::VERSION
   s.authors       = ["Signmax AB"]
   s.email         = ["team@signomatic.ee"]
   s.platform      = Gem::Platform::RUBY

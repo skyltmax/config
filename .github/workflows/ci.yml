@@ -122,6 +122,24 @@ jobs:
           cd test-project
           node -e "import('@signmax/config/prettier').then(() => console.log('✅ Prettier config loads')).catch(e => { console.error(e); process.exit(1) })"
 
+      - name: Verify Prettier Tailwind plugin loads
+        run: |
+          cd test-project
+          node -e "import('@signmax/config/prettier').then(m => { if (m.config.plugins?.includes('prettier-plugin-tailwindcss')) { console.log('✅ Tailwind plugin loaded'); } else { console.error('❌ Tailwind plugin not loaded'); process.exit(1); } })"
+
+      - name: Test Tailwind class sorting
+        run: |
+          cd test-project
+          echo 'const x = () => <div className="p-4 m-2 flex">Hi</div>' > test.jsx
+          npx prettier test.jsx --write
+          if grep -q 'className="m-2 flex p-4"' test.jsx; then
+            echo "✅ Tailwind classes sorted correctly"
+          else
+            echo "❌ Tailwind classes not sorted"
+            cat test.jsx
+            exit 1
+          fi
+
       - name: Verify TypeScript config exists
         run: |
           cd test-project
@@ -141,3 +159,55 @@ jobs:
             echo "❌ reset.d.ts missing"
             exit 1
           fi
+
+  optional-plugin-test:
+    name: Test optional Tailwind plugin
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Pack package
+        run: pnpm pack
+
+      - name: Create test project
+        run: |
+          mkdir test-optional
+          cd test-optional
+          npm init -y
+
+      - name: Install packed package
+        run: |
+          cd test-optional
+          npm install ../signmax-config-*.tgz
+
+      - name: Remove Tailwind plugin to test optional loading
+        run: |
+          cd test-optional
+          npm uninstall prettier-plugin-tailwindcss
+
+      - name: Verify Prettier config still loads without Tailwind plugin
+        run: |
+          cd test-optional
+          node -e "import('@signmax/config/prettier').then(m => { if (m.config.plugins) { console.error('❌ Plugins should be undefined when Tailwind not available'); process.exit(1); } else { console.log('✅ Config loads without Tailwind plugin'); } })"
+
+      - name: Test Prettier still works without Tailwind plugin
+        run: |
+          cd test-optional
+          echo 'const x = "test"' > test.js
+          npx prettier test.js --write
+          echo "✅ Prettier works without Tailwind plugin"

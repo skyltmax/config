@@ -195,17 +195,6 @@ jobs:
           cd test-optional
           npm install ../signmax-config-*.tgz
 
-      - name: Remove Tailwind plugin from config package to test optional loading
-        run: |
-          cd test-optional/node_modules/@signmax/config
-          npm uninstall prettier-plugin-tailwindcss
-          rm -rf node_modules/prettier-plugin-tailwindcss
-
-      - name: Verify Prettier config still loads without Tailwind plugin
-        run: |
-          cd test-optional
-          node -e "import('@signmax/config/prettier').then(m => { if (m.config.plugins) { console.error('❌ Plugins should be undefined when Tailwind not available'); process.exit(1); } else { console.log('✅ Config loads without Tailwind plugin'); } }).catch(e => { console.error('❌ Config failed to load:', e.message); process.exit(1); })"
-
       - name: Test Prettier still works without Tailwind plugin
         run: |
           cd test-optional

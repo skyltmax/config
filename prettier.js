@@ -28,6 +28,13 @@ export const config = {
       },
     },
     {
+      // leave pnpm manifests exactly as written to avoid churn from upstream tooling
+      files: ["**/pnpm-lock.yaml", "**/pnpm-workspace.yaml"],
+      options: {
+        parser: "ignored",
+      },
+    },
+    {
       files: ["**/*.mdx"],
       options: {
         // This stinks, if you don't do this, then an inline component on the
@@ -39,7 +46,7 @@ export const config = {
       },
     },
   ],
-  plugins: ["prettier-plugin-tailwindcss"],
+  plugins: ["prettier-plugin-ignored", "prettier-plugin-tailwindcss"],
   tailwindAttributes: ["class", "className", ".*[cC]lassName"],
   tailwindFunctions: ["clsx", "cn", "twcn"],
 }

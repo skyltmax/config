@@ -2,9 +2,11 @@
 
 ### Unreleased
 
+- fix: Ignore pnpm lockfile and workspace config.
+
 ### [0.0.10] - 2025-11-05
 
-- fix: Handle symlinked execution in peer-deps scripts
+- fix: Handle symlinked execution in peer-deps scripts.
 
 ### [0.0.9] - 2025-11-05
 

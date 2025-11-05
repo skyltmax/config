@@ -54,7 +54,6 @@
     "typecheck": "tsc",
     "validate": "run-p -l format lint typecheck",
     "test": "vitest run",
-    "postinstall": "node ./scripts/peer-deps/audit.js",
     "bump": "npx npm-check-updates --dep prod,dev,peer,optional --target latest -i"
   },
   "peerDependencies": {
@@ -75,6 +74,7 @@
     "eslint-plugin-testing-library": "7.13.3",
     "globals": "16.5.0",
     "prettier": "3.6.2",
+    "prettier-plugin-ignored": "1.0.0",
     "prettier-plugin-tailwindcss": "0.7.1",
     "tslib": "2.8.1",
     "typescript": "5.9.3",

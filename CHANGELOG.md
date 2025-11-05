@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+### [0.0.10] - 2025-11-05
+
+- fix: Handle symlinked execution in peer-deps scripts
+
 ### [0.0.9] - 2025-11-05
 
 - feat: Add helper CLI for syncing peer dependencies.

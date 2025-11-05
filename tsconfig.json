@@ -1,6 +1,7 @@
 {
   "extends": "./typescript.json",
   "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+  "exclude": ["fixture/**/*"],
   "compilerOptions": {
     "types": ["./reset.d.ts"]
   }

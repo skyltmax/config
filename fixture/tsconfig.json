@@ -1,0 +1,13 @@
+{
+  "extends": "@signmax/config/typescript",
+  "compilerOptions": {
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true,
+    "noEmit": true,
+    "baseUrl": "./src"
+  },
+  "include": ["src"]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@signmax/fake-library",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Fixture project for exercising @signmax/config in CI.",
+  "type": "module",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "format": "prettier . --check",
+    "lint": "eslint src --max-warnings=0",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@signmax/config": "file:.."
+  },
+  "prettier": "@signmax/config/prettier"
+}

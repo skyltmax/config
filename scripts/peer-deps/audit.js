@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { existsSync } from "node:fs"
+import { existsSync, realpathSync } from "node:fs"
 import { readFile } from "node:fs/promises"
 import { createRequire } from "node:module"
 import { dirname, resolve } from "node:path"
@@ -111,6 +111,22 @@ export async function runPostinstallAudit() {
   }
 }
 
-if (process.argv[1] === __filename) {
+const isDirectExecution = (() => {
+  const [argvPath] = process.argv.slice(1, 2)
+
+  if (!argvPath) return false
+
+  try {
+    return realpathSync(argvPath) === realpathSync(__filename)
+  } catch (error) {
+    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
+      return false
+    }
+
+    throw error
+  }
+})()
+
+if (isDirectExecution) {
   runPostinstallAudit()
 }

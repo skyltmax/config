@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { spawn } from "node:child_process"
-import { existsSync } from "node:fs"
+import { existsSync, realpathSync } from "node:fs"
 import { readFile } from "node:fs/promises"
 import { dirname, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
@@ -148,7 +148,23 @@ export async function runCli({ args = process.argv.slice(2), env = process.env, 
   }
 }
 
-if (process.argv[1] === __filename) {
+const isDirectExecution = (() => {
+  const [argvPath] = process.argv.slice(1, 2)
+
+  if (!argvPath) return false
+
+  try {
+    return realpathSync(argvPath) === realpathSync(__filename)
+  } catch (error) {
+    if (error && typeof error === "object" && "code" in error && error.code === "ENOENT") {
+      return false
+    }
+
+    throw error
+  }
+})()
+
+if (isDirectExecution) {
   runCli()
     .then(code => {
       process.exit(code)

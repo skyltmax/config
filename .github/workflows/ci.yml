@@ -195,9 +195,29 @@ jobs:
           cd test-optional
           npm install ../signmax-config-*.tgz
 
-      - name: Test Prettier still works without Tailwind plugin
+      - name: Test Prettier works WITHOUT Tailwind plugin installed
         run: |
           cd test-optional
           echo 'const x = "test"' > test.js
           npx prettier test.js --write
-          echo "✅ Prettier works without Tailwind plugin"
+          echo "✅ Prettier works without Tailwind plugin installed"
+
+      - name: Install Tailwind plugin explicitly
+        run: |
+          cd test-optional
+          npm install prettier-plugin-tailwindcss
+
+      - name: Test Tailwind class sorting works
+        run: |
+          cd test-optional
+          echo 'const x = () => <div className="p-4 m-2 text-red-500 flex bg-blue-200">Hi</div>' > test.jsx
+          npx prettier test.jsx --write
+          # Tailwind orders: layout (flex) -> spacing (m, p) -> colors (bg, text)
+          if grep -q 'className="flex m-2 p-4 bg-blue-200 text-red-500"' test.jsx; then
+            echo "✅ Tailwind classes sorted correctly"
+            cat test.jsx
+          else
+            echo "❌ Tailwind classes not sorted as expected"
+            cat test.jsx
+            exit 1
+          fi

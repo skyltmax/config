@@ -82,7 +82,7 @@ jobs:
           echo "✅ Versions are in sync"
 
   fixture:
-    name: Validate fixture consumer
+    name: Check for real issues
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -133,7 +133,7 @@ jobs:
             const messages = reports.flatMap(report => report.messages ?? [])
             const hasTypeImports = messages.some(message => message.ruleId === '@typescript-eslint/consistent-type-imports')
             const hasFloatingPromises = messages.some(message => message.ruleId === '@typescript-eslint/no-floating-promises')
-            const hasPrettier = messages.some(message => message.ruleId === 'prettier/prettier' && /className/.test(message.message))
+            const hasPrettier = messages.some(message => message.ruleId === 'prettier/prettier' && /text-red-500/.test(message.message))
             if (!hasTypeImports) {
               console.error('::error::Expected consistent-type-imports lint error was not reported')
               process.exit(1)

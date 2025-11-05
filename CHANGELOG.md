@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+### [0.0.7] - 2025-11-05
+
+- feat: Make prettier tailwind plugin optional.
+
 ### [0.0.6] - 2025-11-05
 
 - fix: Add missing eslint-config-prettier dependency.

@@ -16,6 +16,20 @@ npm install --save-dev @signmax/config
 pnpm add -D @signmax/config
 ```
 
+Once the package is in place, sync the tooling versions we pin:
+
+```bash
+npx signmax-config-peers --dry-run # inspect the command (optional)
+npx signmax-config-peers
+```
+
+The helper installs the exact ESLint, Prettier, TypeScript, and plugin versions we dogfood with. It currently supports
+`npm`, `pnpm`, and `bun`. If you prefer to manage things yourself, install each entry from
+[`peerDependencies`](package.json) with the version locked there.
+
+> After installation the package runs a lightweight audit and will warn if any peer is missing or pinned to a different
+> version. When that happens, rerun `npx signmax-config-peers` to sync everything.
+
 ### Ruby
 
 Include the gem in your `Gemfile`:

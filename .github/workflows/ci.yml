@@ -39,6 +39,9 @@ jobs:
       - name: Run validation (dogfooding)
         run: pnpm validate
 
+      - name: Run tests
+        run: pnpm test
+
   rubocop:
     name: Validate Ruby configs
     runs-on: ubuntu-latest

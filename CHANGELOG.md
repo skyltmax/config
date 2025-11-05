@@ -2,6 +2,9 @@
 
 ### Unreleased
 
+- feat: Add helper CLI for syncing peer dependencies.
+- chore: Warn consumers about missing or mismatched peer dependencies on postinstall.
+
 ### [0.0.8] - 2025-11-05
 
 - fix: Move dependencies to peer dependencies.

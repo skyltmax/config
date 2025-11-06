@@ -147,8 +147,11 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          bundler-cache: true
+          bundler-cache: false # Don't cache - we're modifying the gemspec
           ruby-version: ruby
+
+      - name: Install dependencies
+        run: bundle install
 
       - name: Create prerelease version
         run: |

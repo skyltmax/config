@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+### [0.0.11] - 2025-11-06
+
 - fix: Ignore pnpm lockfile and workspace config.
 
 ### [0.0.10] - 2025-11-05

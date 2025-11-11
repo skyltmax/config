@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+### [0.0.12] - 2025-11-11
+
+- feat: Detect pnpm workspace for peer config script.
+
 ### [0.0.11] - 2025-11-06
 
 - fix: Ignore pnpm lockfile and workspace config.

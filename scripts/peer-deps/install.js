@@ -37,34 +37,62 @@ export function detectManager({ managerArg, userAgent = "", cwd = process.cwd() 
   return "npm"
 }
 
-export function buildInstallCommand(manager, packages) {
+export function findPnpmWorkspaceRoot(startDir) {
+  let current = resolve(startDir)
+
+  while (true) {
+    if (existsSync(resolve(current, "pnpm-workspace.yaml")) || existsSync(resolve(current, "pnpm-workspace.yml"))) {
+      return current
+    }
+
+    const parent = dirname(current)
+
+    if (parent === current) {
+      return undefined
+    }
+
+    current = parent
+  }
+}
+
+export function buildInstallCommand(manager, packages, { cwd = process.cwd() } = {}) {
   if (!packages.length) {
     throw new Error("No peer dependencies to install.")
   }
 
-  const commandByManager = {
-    npm: {
+  if (manager === "pnpm") {
+    const workspaceRoot = findPnpmWorkspaceRoot(cwd)
+    const args = ["add", "-D", "--save-exact", ...packages]
+
+    if (workspaceRoot) {
+      args.splice(2, 0, "-w")
+    }
+
+    return {
+      command: "pnpm",
+      args,
+      cwd: workspaceRoot ?? cwd,
+    }
+  }
+
+  if (manager === "npm") {
+    return {
       command: "npm",
       args: ["install", "--save-dev", "--save-exact", ...packages],
-    },
-    pnpm: {
-      command: "pnpm",
-      args: ["add", "-D", "--save-exact", ...packages],
-    },
-    bun: {
+      cwd,
+    }
+  }
+
+  if (manager === "bun") {
+    return {
       command: "bun",
       args: ["add", "--dev", "--exact", ...packages],
-    },
+      cwd,
+    }
   }
 
-  const selected = commandByManager[manager]
-
-  if (!selected) {
-    const supported = Object.keys(commandByManager).join(", ")
-    throw new Error(`Unsupported package manager: ${manager}. Supported managers: ${supported}`)
-  }
-
-  return selected
+  const supported = "npm, pnpm, bun"
+  throw new Error(`Unsupported package manager: ${manager}. Supported managers: ${supported}`)
 }
 
 export function formatCommand({ command, args }) {
@@ -84,13 +112,14 @@ export async function prepareInstall({
   }
 
   const manager = detectManager({ managerArg, userAgent: env.npm_config_user_agent ?? "", cwd })
-  const command = buildInstallCommand(manager, packages)
+  const command = buildInstallCommand(manager, packages, { cwd })
 
   return {
     manager,
     packages,
     command: command.command,
     args: command.args,
+    cwd: command.cwd ?? cwd,
     printable: formatCommand(command),
   }
 }
@@ -127,6 +156,7 @@ export async function runCli({ args = process.argv.slice(2), env = process.env, 
 
     const child = spawn(result.command, result.args, {
       stdio: "inherit",
+      cwd: result.cwd,
     })
 
     return await new Promise((resolve, reject) => {

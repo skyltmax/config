@@ -1,4 +1,4 @@
-import { mkdtemp, writeFile } from "node:fs/promises"
+import { mkdir, mkdtemp, writeFile } from "node:fs/promises"
 import { tmpdir } from "node:os"
 import { join } from "node:path"
 import { fileURLToPath } from "node:url"
@@ -49,6 +49,19 @@ describe("install-peers helper", () => {
     expect(formatCommand(result)).toBe("npm install --save-dev --save-exact eslint@9.39.1")
   })
 
+  test("buildInstallCommand adds -w flag in pnpm workspaces", async () => {
+    const workspaceDir = await mkdtemp(join(tmpdir(), "skyltmax-config-workspace-"))
+    await writeFile(join(workspaceDir, "pnpm-workspace.yaml"), "packages:\n  - packages/*\n")
+    const packageDir = join(workspaceDir, "packages", "app")
+    await mkdir(packageDir, { recursive: true })
+
+    const result = buildInstallCommand("pnpm", ["eslint@9.39.1"], { cwd: packageDir })
+
+    expect(result.command).toBe("pnpm")
+    expect(result.args).toEqual(["add", "-D", "-w", "--save-exact", "eslint@9.39.1"])
+    expect(result.cwd).toBe(workspaceDir)
+  })
+
   test("buildInstallCommand throws on unsupported manager", () => {
     expect(() => buildInstallCommand("yarn", ["eslint@9.39.1"])).toThrow(/Unsupported package manager/)
   })
@@ -64,6 +77,29 @@ describe("install-peers helper", () => {
     expect(result.manager).toBe("npm")
     expect(result.packages).toEqual(["eslint@9.39.1", "prettier@3.6.2"])
     expect(result.printable).toBe("npm install --save-dev --save-exact eslint@9.39.1 prettier@3.6.2")
+  })
+
+  test("prepareInstall targets pnpm workspace root", async () => {
+    const workspaceDir = await mkdtemp(join(tmpdir(), "skyltmax-config-workspace-"))
+    await writeFile(join(workspaceDir, "pnpm-workspace.yaml"), "packages:\n  - packages/*\n")
+    const manifestPath = join(workspaceDir, "package.json")
+    await writeFile(manifestPath, JSON.stringify({ peerDependencies: { eslint: "9.39.1" } }, null, 2))
+
+    const packageDir = join(workspaceDir, "packages", "app")
+    await mkdir(packageDir, { recursive: true })
+
+    const result = await prepareInstall({
+      managerArg: "pnpm",
+      env: {},
+      cwd: packageDir,
+      manifestPath,
+    })
+
+    expect(result.manager).toBe("pnpm")
+    expect(result.packages).toEqual(["eslint@9.39.1"])
+    expect(result.args).toEqual(["add", "-D", "-w", "--save-exact", "eslint@9.39.1"])
+    expect(result.cwd).toBe(workspaceDir)
+    expect(result.printable).toBe("pnpm add -D -w --save-exact eslint@9.39.1")
   })
 
   test("prepareInstall returns empty when no peers", async () => {

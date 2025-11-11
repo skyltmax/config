@@ -9,6 +9,7 @@ on:
 
 permissions:
   contents: read
+  packages: write # required for GitHub Packages publishing
   id-token: write # required for trusted publishing
 
 concurrency:
@@ -51,7 +52,7 @@ jobs:
           fi
 
   publish_npm:
-    name: Publish to npm
+    name: Publish npm module to GitHub Packages
     needs: verify
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
@@ -64,14 +65,19 @@ jobs:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
 
-      - name: Ensure modern npm for OIDC trusted publishing
-        run: npm install -g npm@latest
+      - name: Configure npm auth token
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Publish to npm
-        run: npm publish --access public
+      - name: Publish package
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish --registry https://npm.pkg.github.com
 
-  publish_canary:
-    name: Publish canary to npm
+  publish_npm_canary:
+    name: Publish npm module prerealase to GitHub Packages
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:
@@ -85,6 +91,12 @@ jobs:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
 
+      - name: Configure npm auth token
+        run: |
+          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Install pnpm
         uses: pnpm/action-setup@v4
         with:
@@ -95,9 +107,6 @@ jobs:
 
       - name: Run tests
         run: pnpm test
-
-      - name: Ensure modern npm for OIDC trusted publishing
-        run: npm install -g npm@latest
 
       - name: Create canary version
         run: |
@@ -113,11 +122,13 @@ jobs:
           echo "Creating canary version: $CANARY_VERSION"
           npm version "$CANARY_VERSION" --no-git-tag-version
 
-      - name: Publish canary to npm
-        run: npm publish --access public --tag canary
+      - name: Publish canary to GitHub Packages
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm publish --registry https://npm.pkg.github.com --tag canary
 
-  publish_rubygems:
-    name: Publish to RubyGems
+  publish_gem:
+    name: Publish Ruby gem to GitHub Packages
     needs: verify
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
@@ -129,16 +140,35 @@ jobs:
           bundler-cache: true
           ruby-version: ruby
 
-      # Release
-      - uses: rubygems/release-gem@v1.1.2
+      - name: Build gem package
+        run: |
+          rm -f skyltmax_config-*.gem
+          gem build skyltmax_config.gemspec
 
-  publish_rubygems_prerelease:
-    name: Publish prerelease to RubyGems
+      - name: Publish gem to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          GEM_FILE=$(ls -t skyltmax_config-*.gem 2>/dev/null | head -n 1 || true)
+          if [ -z "$GEM_FILE" ]; then
+            echo "Gem file not found" >&2
+            exit 1
+          fi
+
+          mkdir -p ~/.gem
+          printf '%s\n' "---" ":github: Bearer ${GITHUB_TOKEN}" > ~/.gem/credentials
+          chmod 0600 ~/.gem/credentials
+
+          gem push "$GEM_FILE" --key github --host https://rubygems.pkg.github.com/skyltmax
+
+  publish_gem_prerelease:
+    name: Publish prerelease gem to GitHub Packages
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     permissions:
       id-token: write # required for trusted publishing
       contents: write # for git commits
+      packages: write # required for GitHub Packages publishing
     steps:
       - uses: actions/checkout@v4
         with:
@@ -175,17 +205,23 @@ jobs:
       - name: Update Gemfile.lock
         run: bundle install
 
-      - name: Commit prerelease version and create local tag
+      - name: Build prerelease gem package
         run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add lib/skyltmax_config/version.rb Gemfile.lock
+          rm -f skyltmax_config-*.gem
+          gem build skyltmax_config.gemspec
 
-          PRERELEASE_VERSION=$(sed -n 's/^[[:space:]]*VERSION[[:space:]]*=[[:space:]]*"\(.*\)"[[:space:]]*$/\1/p' lib/skyltmax_config/version.rb)
-          git commit -m "chore: prerelease version ${PRERELEASE_VERSION}" || true
+      - name: Publish prerelease gem to GitHub Packages
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          GEM_FILE=$(ls -t skyltmax_config-*.gem 2>/dev/null | head -n 1 || true)
+          if [ -z "$GEM_FILE" ]; then
+            echo "Gem file not found" >&2
+            exit 1
+          fi
 
-          # Create tag locally (rake release will skip pushing if tag exists)
-          git tag "v${PRERELEASE_VERSION}" || true
+          mkdir -p ~/.gem
+          printf '%s\n' "---" ":github: Bearer ${GITHUB_TOKEN}" > ~/.gem/credentials
+          chmod 0600 ~/.gem/credentials
 
-      - name: Publish prerelease to RubyGems
-        uses: rubygems/release-gem@v1.1.2
+          gem push "$GEM_FILE" --key github --host https://rubygems.pkg.github.com/skyltmax

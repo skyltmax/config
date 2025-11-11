@@ -1,6 +1,6 @@
-# AI Agent Guide for @signmax/config
+# AI Agent Guide for @skyltmax/config
 
-This document provides comprehensive guidance for AI coding agents working with the `@signmax/config` package.
+This document provides comprehensive guidance for AI coding agents working with the `@skyltmax/config` package.
 
 ## Table of Contents
 
@@ -64,7 +64,7 @@ This is a **dual-language configuration package** providing ESLint, Prettier, an
 JavaScript/TypeScript projects, and Rubocop configs for Ruby projects:
 
 ```
-@signmax/config/
+@skyltmax/config/
 ├── lib/
 │   └── skyltmax_config.rb         # Ruby gem entry point
 ├── eslint.js                       # ESLint configuration
@@ -125,9 +125,9 @@ JavaScript/TypeScript projects, and Rubocop configs for Ruby projects:
 **For JavaScript/TypeScript projects:**
 
 ```bash
-npm install --save-dev @signmax/config
+npm install --save-dev @skyltmax/config
 # or
-pnpm add -D @signmax/config
+pnpm add -D @skyltmax/config
 ```
 
 **That's it!** All required tools (ESLint, Prettier, TypeScript, and all plugins) are bundled as dependencies. No need
@@ -146,7 +146,7 @@ gem "skyltmax_config"
 
 ```javascript
 // eslint.config.js
-import { config as defaultConfig } from "@signmax/config/eslint"
+import { config as defaultConfig } from "@skyltmax/config/eslint"
 
 /** @type {import("eslint").Linter.Config[]} */
 export default [...defaultConfig]
@@ -157,7 +157,7 @@ export default [...defaultConfig]
 ```json
 // package.json
 {
-  "prettier": "@signmax/config/prettier"
+  "prettier": "@skyltmax/config/prettier"
 }
 ```
 
@@ -166,7 +166,7 @@ export default [...defaultConfig]
 ```json
 // tsconfig.json
 {
-  "extends": ["@signmax/config/typescript"],
+  "extends": ["@skyltmax/config/typescript"],
   "include": ["**/*.ts", "**/*.tsx"],
   "compilerOptions": {
     "paths": {
@@ -431,7 +431,7 @@ When modifying configurations:
    - Document breaking changes in CHANGELOG
 
 3. **Validate exports:**
-   - Ensure all exports work: `import { config } from "@signmax/config/eslint"`
+   - Ensure all exports work: `import { config } from "@skyltmax/config/eslint"`
    - Check both named and default exports
    - Verify TypeScript definitions are correct
 
@@ -487,7 +487,7 @@ configurations, which ensures the configs are functional and catches issues earl
 
 This package uses a dual-publishing approach:
 
-**NPM Package (`@signmax/config`):**
+**NPM Package (`@skyltmax/config`):**
 
 - Main entry: `index.js`
 - Exports: `./prettier`, `./typescript`, `./eslint`, `./reset.d.ts`
@@ -507,7 +507,7 @@ This package uses **peer dependencies** to provide all required tooling while en
 
 1. **Editor Discovery:** Tools like VSCode, WebStorm, and others look for `prettier`, `eslint`, and `typescript` in the
    project's root `node_modules`. When bundled as regular dependencies, they end up in
-   `node_modules/@signmax/config/node_modules`, which editors cannot find.
+   `node_modules/@skyltmax/config/node_modules`, which editors cannot find.
 
 2. **Automatic Installation:** Modern package managers with `autoInstallPeers` enabled (pnpm's default, npm 7+
    configurable) automatically install peer dependencies, so users get a "single install" experience.
@@ -539,7 +539,7 @@ This package uses **peer dependencies** to provide all required tooling while en
 **Benefits:**
 
 - ✅ **Version control:** Consuming projects get consistent, tested versions
-- ✅ **Simplified setup:** Single `npm install @signmax/config` gets everything (with autoInstallPeers enabled)
+- ✅ **Simplified setup:** Single `npm install @skyltmax/config` gets everything (with autoInstallPeers enabled)
 - ✅ **No version conflicts:** This package manages compatibility between tools
 - ✅ **Updates centralized:** Bump versions here, all projects benefit
 - ✅ **Editor compatibility:** Tools are hoisted to root `node_modules/` for VSCode, WebStorm, etc.

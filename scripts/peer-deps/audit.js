@@ -76,7 +76,7 @@ export function formatAuditMessage({ missing, mismatched }) {
     return null
   }
 
-  const lines = ["[signmax-config] Peer dependency check detected issues:"]
+  const lines = ["[skyltmax-config] Peer dependency check detected issues:"]
 
   if (missing.length) {
     lines.push("  Missing peers:")
@@ -93,7 +93,7 @@ export function formatAuditMessage({ missing, mismatched }) {
     }
   }
 
-  lines.push('  Run "npx signmax-config-peers" to install the correct versions.')
+  lines.push('  Run "npx skyltmax-config-peers" to install the correct versions.')
 
   return lines.join("\n")
 }
@@ -107,7 +107,7 @@ export async function runPostinstallAudit() {
       console.warn(message)
     }
   } catch (error) {
-    console.warn(`[signmax-config] Peer dependency check skipped: ${error.message}`)
+    console.warn(`[skyltmax-config] Peer dependency check skipped: ${error.message}`)
   }
 }
 

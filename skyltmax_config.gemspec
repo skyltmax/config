@@ -18,10 +18,9 @@ Gem::Specification.new do |s|
   s.license       = "MIT"
 
   s.metadata      = {
-    "homepage_uri"      => "https://github.com/skyltmax/config#readme",
-    "source_code_uri"   => "https://github.com/skyltmax/config",
-    "bug_tracker_uri"   => "https://github.com/skyltmax/config/issues",
-    "allowed_push_host" => "https://rubygems.org",
+    "homepage_uri"    => "https://github.com/skyltmax/config#readme",
+    "source_code_uri" => "https://github.com/skyltmax/config",
+    "bug_tracker_uri" => "https://github.com/skyltmax/config/issues",
   }
 
   # include all tracked files so packaged gem mirrors the repo's config assets

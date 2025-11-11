@@ -16,7 +16,7 @@ async function createPackage(root, name, version) {
 }
 
 async function createProjectRoot() {
-  const root = await mkdtemp(join(tmpdir(), "signmax-check-peers-"))
+  const root = await mkdtemp(join(tmpdir(), "skyltmax-check-peers-"))
   await writeFile(join(root, "package.json"), JSON.stringify({ name: "example", version: "1.0.0" }), "utf8")
   return root
 }

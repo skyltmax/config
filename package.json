@@ -1,5 +1,5 @@
 {
-  "name": "@signmax/config",
+  "name": "@skyltmax/config",
   "version": "0.0.12",
   "publishConfig": {
     "access": "public"
@@ -33,7 +33,7 @@
     "./eslint": "./eslint.js"
   },
   "bin": {
-    "signmax-config-peers": "./scripts/peer-deps/install.js"
+    "skyltmax-config-peers": "./scripts/peer-deps/install.js"
   },
   "files": [
     "*.js",

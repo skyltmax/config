@@ -5,7 +5,7 @@ import { readFile } from "node:fs/promises"
 import { dirname, resolve } from "node:path"
 import { fileURLToPath } from "node:url"
 
-const HELP = `Usage: signmax-config-peers [options]
+const HELP = `Usage: skyltmax-config-peers [options]
 
 Options:
   --manager <name>   npm | pnpm | bun (auto-detected by default)
@@ -114,7 +114,7 @@ export async function runCli({ args = process.argv.slice(2), env = process.env, 
     const result = await prepareInstall({ managerArg, cwd, env })
 
     if (!result.packages || result.packages.length === 0) {
-      process.stdout.write("No peer dependencies found on @signmax/config.\n")
+      process.stdout.write("No peer dependencies found on @skyltmax/config.\n")
       return 0
     }
 

@@ -36,7 +36,7 @@ describe("install-peers helper", () => {
   })
 
   test("detectManager infers from lockfile", async () => {
-    const dir = await mkdtemp(join(tmpdir(), "signmax-config-"))
+    const dir = await mkdtemp(join(tmpdir(), "skyltmax-config-"))
     await writeFile(join(dir, "bun.lockb"), "")
     const manager = detectManager({ cwd: dir })
     expect(manager).toBe("bun")

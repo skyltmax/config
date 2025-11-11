@@ -52,7 +52,7 @@ jobs:
           fi
 
   publish_npm:
-    name: Publish npm module to GitHub Packages
+    name: Publish npm package to GitHub Packages
     needs: verify
     if: github.event_name == 'release'
     runs-on: ubuntu-latest
@@ -65,9 +65,11 @@ jobs:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
 
-      - name: Configure npm auth token
+      - name: Configure npm registry auth
         run: |
-          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+          npm config set //npm.pkg.github.com/:_authToken "${NODE_AUTH_TOKEN}"
+          npm config set @skyltmax:registry https://npm.pkg.github.com
+          npm config set always-auth true
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -77,7 +79,7 @@ jobs:
         run: npm publish --registry https://npm.pkg.github.com
 
   publish_npm_canary:
-    name: Publish npm module prerealase to GitHub Packages
+    name: Publish npm canary to GitHub Packages
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
     steps:
@@ -91,9 +93,11 @@ jobs:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
 
-      - name: Configure npm auth token
+      - name: Configure npm registry auth
         run: |
-          echo "//npm.pkg.github.com/:_authToken=${NODE_AUTH_TOKEN}" >> ~/.npmrc
+          npm config set //npm.pkg.github.com/:_authToken "${NODE_AUTH_TOKEN}"
+          npm config set @skyltmax:registry https://npm.pkg.github.com
+          npm config set always-auth true
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

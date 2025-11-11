@@ -1,8 +1,8 @@
 {
-  "name": "@signmax/fake-library",
+  "name": "@skyltmax/fake-library",
   "version": "0.0.0",
   "private": true,
-  "description": "Fixture project for exercising @signmax/config in CI.",
+  "description": "Fixture project for exercising @skyltmax/config in CI.",
   "type": "module",
   "engines": {
     "node": ">=20.0.0"
@@ -13,7 +13,7 @@
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
-    "@signmax/config": "file:.."
+    "@skyltmax/config": "file:.."
   },
-  "prettier": "@signmax/config/prettier"
+  "prettier": "@skyltmax/config/prettier"
 }

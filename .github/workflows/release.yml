@@ -17,7 +17,7 @@ jobs:
   verify:
     name: Verify versions match tag
     runs-on: ubuntu-latest
-    if: github.event_name == 'release'
+    if: ${{ !github.event.release.prerelease }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,6 +46,37 @@ jobs:
             echo "Version mismatch: tag=$TAG_NO_V, npm=$PKG_VER, gem=$GEM_VER" >&2
             exit 1
           fi
+  verify_prerelease:
+    name: Verify prerelease tag matches npm version
+    runs-on: ubuntu-latest
+    if: github.event.release.prerelease
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Verify tag is a valid prerelease version
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          TAG_NO_V=${TAG#v}
+
+          # Ensure the tag contains a prerelease identifier (e.g. 0.0.13-beta.1)
+          if [[ ! "$TAG_NO_V" =~ ^[0-9]+\.[0-9]+\.[0-9]+-.+ ]]; then
+            echo "Tag '$TAG_NO_V' does not look like a valid prerelease version" >&2
+            exit 1
+          fi
+
+          # Verify base version (before the hyphen) matches package.json
+          BASE_VERSION=${TAG_NO_V%%-*}
+          PKG_VER=$(node -e "console.log(JSON.parse(require('fs').readFileSync('package.json','utf8')).version)")
+
+          echo "Tag:          $TAG_NO_V"
+          echo "Base version: $BASE_VERSION"
+          echo "npm version:  $PKG_VER"
+
+          if [[ "$PKG_VER" != "$BASE_VERSION" ]]; then
+            echo "Base version mismatch: tag base=$BASE_VERSION, npm=$PKG_VER" >&2
+            exit 1
+          fi
   publish_npm:
     name: Publish npm package
     needs: verify
@@ -56,12 +87,15 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "24"
           registry-url: "https://registry.npmjs.org"
+      - name: Ensure modern npm for OIDC trusted publishing
+        run: npm install -g npm@latest
       - name: Publish package
-        run: npm publish
+        run: npm publish --access public
   publish_npm_canary:
     name: Publish npm canary
+    needs: verify_prerelease
     if: github.event.release.prerelease
     runs-on: ubuntu-latest
     steps:
@@ -71,13 +105,15 @@ jobs:
         with:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
+      - name: Ensure modern npm for OIDC trusted publishing
+        run: npm install -g npm@latest
       - name: Set canary version from tag
         run: |
           TAG_VERSION="${GITHUB_REF_NAME#v}"
           echo "Setting canary version: $TAG_VERSION"
           npm version "$TAG_VERSION" --no-git-tag-version
       - name: Publish canary
-        run: npm publish --tag canary
+        run: npm publish --tag canary --access public
   publish_gem:
     name: Publish Ruby gem
     needs: verify
@@ -107,6 +143,7 @@ jobs:
           gem push "$GEM_FILE"
   publish_gem_prerelease:
     name: Publish prerelease gem
+    needs: verify_prerelease
     if: github.event.release.prerelease
     runs-on: ubuntu-latest
     steps:

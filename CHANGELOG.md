@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+### [0.0.14] - 2026-02-10
+
 - fix: Lock rubocop version to avoid version with bug https://github.com/rubocop/rubocop/pull/14867
 
 ### [0.0.13] - 2026-02-10

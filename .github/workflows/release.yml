@@ -3,9 +3,6 @@ name: Publish release
 on:
   release:
     types: [published]
-  push:
-    branches:
-      - main
 
 permissions:
   contents: read
@@ -24,7 +21,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
       - name: Extract versions
         id: versions
         shell: bash
@@ -50,89 +46,42 @@ jobs:
             echo "Version mismatch: tag=$TAG_NO_V, npm=$PKG_VER, gem=$GEM_VER" >&2
             exit 1
           fi
-
   publish_npm:
-    name: Publish npm package to GitHub Packages
+    name: Publish npm package
     needs: verify
-    if: github.event_name == 'release'
+    if: ${{ !github.event.release.prerelease }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
-
-      - name: Configure npm registry auth
-        run: |
-          npm config set //npm.pkg.github.com/:_authToken "${NODE_AUTH_TOKEN}"
-          npm config set @skyltmax:registry https://npm.pkg.github.com
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Publish package
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm publish --registry https://npm.pkg.github.com
-
+        run: npm publish
   publish_npm_canary:
-    name: Publish npm canary to GitHub Packages
+    name: Publish npm canary
+    if: github.event.release.prerelease
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # needed for git rev-parse
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: "22"
           registry-url: "https://registry.npmjs.org"
-
-      - name: Configure npm registry auth
+      - name: Set canary version from tag
         run: |
-          npm config set //npm.pkg.github.com/:_authToken "${NODE_AUTH_TOKEN}"
-          npm config set @skyltmax:registry https://npm.pkg.github.com
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10
-
-      - name: Install dependencies
-        run: pnpm install
-
-      - name: Run tests
-        run: pnpm test
-
-      - name: Create canary version
-        run: |
-          # Get short commit SHA
-          COMMIT_SHA=$(git rev-parse --short HEAD)
-
-          # Get current version from package.json
-          CURRENT_VERSION=$(node -e "console.log(require('./package.json').version)")
-
-          # Create canary version: current-version-canary.commit-sha
-          CANARY_VERSION="${CURRENT_VERSION}-canary.${COMMIT_SHA}"
-
-          echo "Creating canary version: $CANARY_VERSION"
-          npm version "$CANARY_VERSION" --no-git-tag-version
-
-      - name: Publish canary to GitHub Packages
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm publish --registry https://npm.pkg.github.com --tag canary
-
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          echo "Setting canary version: $TAG_VERSION"
+          npm version "$TAG_VERSION" --no-git-tag-version
+      - name: Publish canary
+        run: npm publish --tag canary
   publish_gem:
-    name: Publish Ruby gem to GitHub Packages
+    name: Publish Ruby gem
     needs: verify
-    if: github.event_name == 'release'
+    if: ${{ !github.event.release.prerelease }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -141,15 +90,13 @@ jobs:
         with:
           bundler-cache: true
           ruby-version: ruby
-
       - name: Build gem package
         run: |
           rm -f skyltmax_config-*.gem
           gem build skyltmax_config.gemspec
-
-      - name: Publish gem to GitHub Packages
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Configure trusted publishing credentials
+        uses: rubygems/configure-rubygems-credentials@v1.0.0
+      - name: Publish gem
         run: |
           GEM_FILE=$(ls -t skyltmax_config-*.gem 2>/dev/null | head -n 1 || true)
           if [ -z "$GEM_FILE" ]; then
@@ -157,64 +104,38 @@ jobs:
             exit 1
           fi
 
-          mkdir -p ~/.gem
-          printf '%s\n' "---" ":github: Bearer ${GITHUB_TOKEN}" > ~/.gem/credentials
-          chmod 0600 ~/.gem/credentials
-
-          gem push "$GEM_FILE" --key github --host https://rubygems.pkg.github.com/skyltmax
-
+          gem push "$GEM_FILE"
   publish_gem_prerelease:
-    name: Publish prerelease gem to GitHub Packages
+    name: Publish prerelease gem
+    if: github.event.release.prerelease
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-    permissions:
-      id-token: write # required for trusted publishing
-      contents: write # for git commits
-      packages: write # required for GitHub Packages publishing
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0 # needed for git rev-parse
-
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          bundler-cache: false # Don't cache - we're modifying the gemspec
+          bundler-cache: false
           ruby-version: ruby
-
       - name: Install dependencies
         run: bundle install
-
-      - name: Create prerelease version
+      - name: Set prerelease version from tag
         run: |
-          # Get short commit SHA
-          COMMIT_SHA=$(git rev-parse --short HEAD)
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          # Ruby gem versions use dots instead of hyphens (e.g. 0.0.12.beta.1)
+          GEM_VERSION="${TAG_VERSION//-/.}"
 
-          # Get current version from version.rb
-          CURRENT_VERSION=$(sed -n 's/^[[:space:]]*VERSION[[:space:]]*=[[:space:]]*"\(.*\)"[[:space:]]*$/\1/p' lib/skyltmax_config/version.rb)
-
-          # Create prerelease version: current-version.pre.commit-sha
-          PRERELEASE_VERSION="${CURRENT_VERSION}.pre.${COMMIT_SHA}"
-
-          echo "Creating prerelease version: $PRERELEASE_VERSION"
-
-          # Update version.rb with prerelease version
-          sed -i "s/VERSION = \".*\"/VERSION = \"${PRERELEASE_VERSION}\"/" lib/skyltmax_config/version.rb
-
-          # Verify the change
+          echo "Setting prerelease version: $GEM_VERSION"
+          sed -i "s/VERSION = \".*\"/VERSION = \"${GEM_VERSION}\"/" lib/skyltmax_config/version.rb
           cat lib/skyltmax_config/version.rb
-
       - name: Update Gemfile.lock
         run: bundle install
-
       - name: Build prerelease gem package
         run: |
           rm -f skyltmax_config-*.gem
           gem build skyltmax_config.gemspec
-
-      - name: Publish prerelease gem to GitHub Packages
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Configure trusted publishing credentials
+        uses: rubygems/configure-rubygems-credentials@v1.0.0
+      - name: Publish prerelease gem
         run: |
           GEM_FILE=$(ls -t skyltmax_config-*.gem 2>/dev/null | head -n 1 || true)
           if [ -z "$GEM_FILE" ]; then
@@ -222,8 +143,4 @@ jobs:
             exit 1
           fi
 
-          mkdir -p ~/.gem
-          printf '%s\n' "---" ":github: Bearer ${GITHUB_TOKEN}" > ~/.gem/credentials
-          chmod 0600 ~/.gem/credentials
-
-          gem push "$GEM_FILE" --key github --host https://rubygems.pkg.github.com/skyltmax
+          gem push "$GEM_FILE"

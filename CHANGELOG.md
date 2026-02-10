@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+### [0.0.13] - 2026-02-10
+
 - build: Switched to official package registries.
 
 ### [0.0.12] - 2025-11-11

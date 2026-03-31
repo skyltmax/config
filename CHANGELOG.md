@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+### [0.0.16] - 2026-03-31
+
+- chore: Bump peer dependencies.
+
 ### [0.0.15] - 2026-03-31
 
 - feat: Change ignored vars pattern.

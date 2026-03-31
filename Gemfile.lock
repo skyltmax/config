@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    skyltmax_config (0.0.15)
+    skyltmax_config (1.0.0)
       rubocop (>= 1.84.2, < 2)
       rubocop-performance (>= 1.26.0, < 2)
       rubocop-rails (>= 2.33.0, < 3)

@@ -1,5 +1,5 @@
 # frozen_string_literal: true
 
 module SkyltmaxConfig
-  VERSION = "0.0.15"
+  VERSION = "1.0.0"
 end

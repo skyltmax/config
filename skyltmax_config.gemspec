@@ -29,7 +29,7 @@ Gem::Specification.new do |s|
   end
   s.require_path = "lib"
 
-  s.add_dependency "rubocop", ">= 1.81.0", "< 2", "< 1.84.1" # https://github.com/rubocop/rubocop/pull/14867
+  s.add_dependency "rubocop", ">= 1.84.2", "< 2"
   s.add_dependency "rubocop-performance", ">= 1.26.0", "< 2"
   s.add_dependency "rubocop-rails", ">= 2.33.0", "< 3"
 

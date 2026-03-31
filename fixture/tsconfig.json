@@ -1,5 +1,5 @@
 {
-  "extends": "@skyltmax/config/typescript",
+  "extends": "@signmax/config/typescript",
   "compilerOptions": {
     "jsx": "react-jsx",
     "module": "ESNext",

@@ -2,8 +2,9 @@
 
 ### Unreleased
 
-### [0.0.16] - 2026-03-31
+### [1.0.0] - 2026-03-31
 
+- chore: Release stable version.
 - chore: Bump peer dependencies.
 
 ### [0.0.15] - 2026-03-31

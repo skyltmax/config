@@ -106,7 +106,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
+          node-version: "24"
           registry-url: "https://registry.npmjs.org"
       - name: Ensure modern npm for OIDC trusted publishing
         run: npm install -g npm@latest
@@ -128,7 +128,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-          ruby-version: "3.4"
+          ruby-version: "4.0"
       - name: Build gem package
         run: |
           rm -f skyltmax_config-*.gem
@@ -155,7 +155,7 @@ jobs:
         uses: ruby/setup-ruby@v1
         with:
           bundler-cache: false
-          ruby-version: "3.4"
+          ruby-version: "4.0"
       - name: Install dependencies
         run: bundle install
       - name: Set prerelease version from tag

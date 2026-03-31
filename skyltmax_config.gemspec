@@ -10,8 +10,8 @@ Gem::Specification.new do |s|
   s.email         = ["team@signomatic.ee"]
   s.platform      = Gem::Platform::RUBY
 
-  s.required_ruby_version = ">= 3.4"
-  s.required_rubygems_version = ">= 3.2"
+  s.required_ruby_version = ">= 4.0"
+  s.required_rubygems_version = ">= 4.0"
 
   s.summary       = "Reasonable Rubocop configs."
   s.homepage      = "https://github.com/skyltmax/config"

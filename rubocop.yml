@@ -2,7 +2,7 @@ plugins:
   - rubocop-performance
 
 AllCops:
-  TargetRubyVersion: 3.4.3
+  TargetRubyVersion: 4.0
   UseCache: true
   SuggestExtensions: false
   NewCops: disable

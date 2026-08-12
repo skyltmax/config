@@ -7,11 +7,17 @@
     "RUBY_YJIT_ENABLE": "true",
     "MALLOC_ARENA_MAX": "2",
     "BUNDLE_JOBS": "8",
-    "DEVC_WORKSPACE": "${containerWorkspaceFolder}"
+    "DEVC_WORKSPACE": "${containerWorkspaceFolder}",
+    "PNPM_CONFIG_VERIFY_DEPS_BEFORE_RUN": "false"
   },
   "mounts": [
     "source=bundle,target=/usr/local/bundle,type=volume",
     "source=rubylsp,target=${containerWorkspaceFolder}/.ruby-lsp,type=volume"
   ],
+  "customizations": {
+    "coder": {
+      "autoStart": true
+    }
+  },
   "onCreateCommand": ".devcontainer/boot.sh"
 }

@@ -11,24 +11,15 @@ Based on <a href="https://github.com/epicweb-dev/config">@epic-web/config</a>.
 ### JavaScript/TypeScript
 
 ```bash
-npm install --save-dev @skyltmax/config
+npm install --save-dev @signmax/config eslint prettier typescript
 # or
-pnpm add -D @skyltmax/config
+pnpm add -D @signmax/config eslint prettier typescript
 ```
 
-Once the package is in place, sync the tooling versions we pin:
-
-```bash
-npx skyltmax-config-peers --dry-run # inspect the command (optional)
-npx skyltmax-config-peers
-```
-
-The helper installs the exact ESLint, Prettier, TypeScript, and plugin versions we dogfood with. It currently supports
-`npm`, `pnpm`, and `bun`. If you prefer to manage things yourself, install each entry from
-[`peerDependencies`](package.json) with the version locked there.
-
-> After installation the package runs a lightweight audit and will warn if any peer is missing or pinned to a different
-> version. When that happens, rerun `npx skyltmax-config-peers` to sync everything.
+Every ESLint and Prettier plugin is a regular dependency of this package and resolves from here — consumers never
+declare plugins. The three CLIs are peer dependencies with version ranges (see [`peerDependencies`](package.json)): they
+must live in your project root so the `eslint`/`prettier`/`tsc` binaries and your editor's extensions can find them.
+Plugin versions are owned and tested in this repo and arrive via ordinary `@signmax/config` releases.
 
 ### Ruby
 
@@ -56,7 +47,7 @@ inherit_gem:
 The easiest way to use this config is in your `package.json`:
 
 ```json
-"prettier": "@skyltmax/config/prettier"
+"prettier": "@signmax/config/prettier"
 ```
 
 <details>
@@ -68,7 +59,7 @@ can override it using regular JavaScript stuff.
 Create a `.prettierrc.js` file in your project root with the following content:
 
 ```js
-import defaultConfig from "skyltmax/config/prettier"
+import defaultConfig from "@signmax/config/prettier"
 
 /** @type {import("prettier").Options} */
 export default {
@@ -85,7 +76,7 @@ Create a `tsconfig.json` file in your project root with the following content:
 
 ```json
 {
-  "extends": ["@skyltmax/config/typescript"],
+  "extends": ["@signmax/config/typescript"],
   "include": ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
   "compilerOptions": {
     "paths": {
@@ -99,7 +90,7 @@ Create a `tsconfig.json` file in your project root with the following content:
 Create a `reset.d.ts` file in your project with these contents:
 
 ```typescript
-import "@skyltmax/config/reset.d.ts"
+import "@signmax/config/reset.d.ts"
 ```
 
 <details>
@@ -114,7 +105,7 @@ Learn more from [the TypeScript docs here](https://www.typescriptlang.org/tsconf
 Create a `eslint.config.js` file in your project root with the following content:
 
 ```js
-import { config as defaultConfig } from "@skyltmax/config/eslint"
+import { config as defaultConfig } from "@signmax/config/eslint"
 
 /** @type {import("eslint").Linter.Config[]} */
 export default [...defaultConfig]
@@ -134,7 +125,7 @@ positives.
 
 ## Publishing
 
-This repo publishes a Ruby gem (skyltmax_config) and an npm package (@skyltmax/config) whenever a GitHub Release is
+This repo publishes a Ruby gem (skyltmax_config) and an npm package (@signmax/config) whenever a GitHub Release is
 published. A manual run is also available.
 
 Setup (one-time):

@@ -2,6 +2,18 @@
 
 ### Unreleased
 
+### [2.0.0] - 2026-08-12
+
+- feat!: Move all eslint/prettier plugins (and `@total-typescript/ts-reset`) from `peerDependencies` to `dependencies`;
+  they now resolve from this package and consumers stop declaring them.
+- feat!: Shrink `peerDependencies` to ranged CLIs: `eslint ^9.30.0`, `prettier ^3.6.0`, `typescript >=5.9 <6.1`.
+- feat!: Drop support for eslint 10 (1.0.0 pinned `eslint 10.1.0`). The pinned `eslint-plugin-react-hooks`,
+  `eslint-plugin-jsx-a11y`, and `eslint-plugin-jest-dom` only declare support through eslint 9, so consumers on eslint
+  10 must move to `^9.30.0`. Support returns once those plugins ship eslint 10 peer ranges.
+- feat!: Remove the `skyltmax-config-peers` bin and the peer install/audit scripts.
+- fix: Resolve prettier plugins via `import.meta.resolve` instead of bare names, so resolution is anchored to this
+  package instead of the consumer's context.
+
 ### [1.0.0] - 2026-03-31
 
 - chore: Release stable version.

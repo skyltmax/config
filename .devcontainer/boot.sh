@@ -43,6 +43,15 @@ if [ -f "/home/$HOSTLOGNAME/.npmrc" ]; then
   cp "/home/$HOSTLOGNAME/.npmrc" "${DEVC_WORKSPACE}/.npmrc"
 fi
 
+# Both halves of this repo get set up: the gem and the @signmax/config package.
+if [ "${PNPM_ALREADY_INSTALLED_1}" != "true" ]; then
+  rm -rf $DEVC_WORKSPACE/node_modules
+  bootcmd "Installing NPM packages" "pnpm install"
+  pnpm install
+
+  PNPM_ALREADY_INSTALLED_1="true"
+fi
+
 # The bundle volume outlives the image, so gems built against the previous Ruby have to go.
 if [ "${GEMS_ALREADY_RESET_1}" != "true" ]; then
   rm -rf /usr/local/bundle/*
@@ -70,6 +79,7 @@ fi
 echo -e "\
   GEMS_ALREADY_RESET_1=${GEMS_ALREADY_RESET_1}\n\
   BUNDLE_ALREADY_INSTALLED_2=${BUNDLE_ALREADY_INSTALLED_2}\n\
+  PNPM_ALREADY_INSTALLED_1=${PNPM_ALREADY_INSTALLED_1}\n\
   CHANGELOG_DISPLAYED_7=${CHANGELOG_DISPLAYED_7}" > "${MARKER_FILE}"
 
 printf "\n\n\e[38;2;252;163;17m"

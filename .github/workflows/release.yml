@@ -128,7 +128,7 @@ jobs:
         uses: ruby/setup-ruby@3ff19f5e2baf30647122352b96108b1fbe250c64 # v1.299.0
         with:
           bundler-cache: true
-          ruby-version: "4.0"
+          ruby-version: "4.0.6"
       - name: Build gem package
         run: |
           rm -f skyltmax_config-*.gem
@@ -155,7 +155,7 @@ jobs:
         uses: ruby/setup-ruby@3ff19f5e2baf30647122352b96108b1fbe250c64 # v1.299.0
         with:
           bundler-cache: false
-          ruby-version: "4.0"
+          ruby-version: "4.0.6"
       - name: Install dependencies
         run: bundle install
       - name: Set prerelease version from tag

@@ -15,7 +15,7 @@
   "devDependencies": {
     "@signmax/config": "file:..",
     "eslint": "9.39.4",
-    "prettier": "3.8.2",
+    "prettier": "3.9.6",
     "typescript": "6.0.3"
   },
   "prettier": "@signmax/config/prettier"

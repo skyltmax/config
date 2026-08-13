@@ -134,7 +134,7 @@ jobs:
           rm -f skyltmax_config-*.gem
           gem build skyltmax_config.gemspec
       - name: Configure trusted publishing credentials
-        uses: rubygems/configure-rubygems-credentials@bc6dd217f8a4f919d6835fcfefd470ef821f5c44 # v1.0.0
+        uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a # v2.1.0
       - name: Publish gem
         run: |
           GEM_FILE=$(ls -t skyltmax_config-*.gem 2>/dev/null | head -n 1 || true)
@@ -174,7 +174,7 @@ jobs:
           rm -f skyltmax_config-*.gem
           gem build skyltmax_config.gemspec
       - name: Configure trusted publishing credentials
-        uses: rubygems/configure-rubygems-credentials@bc6dd217f8a4f919d6835fcfefd470ef821f5c44 # v1.0.0
+        uses: rubygems/configure-rubygems-credentials@dc5a8d8553e6ee01fc26761a49e99e733d17954a # v2.1.0
       - name: Publish prerelease gem
         run: |
           GEM_FILE=$(ls -t skyltmax_config-*.gem 2>/dev/null | head -n 1 || true)

@@ -45,10 +45,10 @@ config from the **default branch only**, so the order matters:
    merges anything.
 6. Expected one-time first-run PRs: a digest pin for `rubygems/configure-rubygems-credentials` (the only non-SHA-pinned
    action); "Pin dependencies" (`react`, `npm-run-all`, `@types/react` → exact); a digest pin on the harbor devcontainer
-   image; the `npm-run-all` → `npm-run-all2` replacement (a rename, not a bump); an ordinary `ruby-version 4.0 → 4.0.6`
-   PR — cross-check against the devcontainer image (§9). The dashboard also flags **abandoned** packages (no release in
-   a year); at setup time: `npm-run-all` (the replacement PR is the fix), `@total-typescript/ts-reset`,
-   `prettier-plugin-ignored`, `eslint-plugin-jsx-a11y`, `eslint-plugin-react` — a prompt to check, not a verdict.
+   image; and the `npm-run-all` → `npm-run-all2` replacement (a rename, not a bump). The dashboard also flags
+   **abandoned** packages (no release in a year); at setup time: `npm-run-all` (the replacement PR is the fix),
+   `@total-typescript/ts-reset`, `prettier-plugin-ignored`, `eslint-plugin-jsx-a11y`, `eslint-plugin-react` — a prompt
+   to check, not a verdict.
 
 ## The gate: brief every PR before merging
 

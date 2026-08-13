@@ -16,6 +16,18 @@
   ],
 
   packageRules: [
+    // --- ruby-version in the workflows stays at minor precision ---
+    // `ruby-version: "4.0"` makes ruby/setup-ruby install the latest 4.0.x, so CI floats patches with the devcontainer
+    // image instead of pinning one. Renovate would rewrite it to a full patch version (4.0 -> 4.0.6); disabling patch
+    // updates keeps the float. Minors still PR — as a full version, since no versioning preserves 2-part precision for
+    // this datasource — trim the proposed value back to X.Y on the branch (INTERACTIONS §9).
+    {
+      matchManagers: ["github-actions"],
+      matchDepNames: ["ruby"],
+      matchUpdateTypes: ["patch"],
+      enabled: false,
+    },
+
     // --- Harbor image: built in skyltmax/infra, tracked here ---
     // The CHANGELOG_DISPLAYED_<N> marker in .devcontainer/boot.sh still needs a manual commit on the PR, and a Ruby
     // change in the image needs the GEMS_ALREADY_RESET_<N> marker bumped too (INTERACTIONS §1). Tags carry

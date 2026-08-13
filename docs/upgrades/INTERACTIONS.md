@@ -44,6 +44,14 @@ with. `eslint.js` reads a specific export path from most of them:
 The rest — `eslint-plugin-import-x`, `eslint-plugin-react-hooks`, `globals` — are used via their default export with
 rules named individually, so a renamed or removed **rule** is the failure mode there.
 
+A plugin can also break on the **eslint** side: eslint 10 removed the deprecated `context` methods, and
+`eslint-plugin-react` 7.37.5 still calls `context.getFilename()` while detecting the React version
+(jsx-eslint/eslint-plugin-react#4018 — closed upstream, unreleased). `eslint.js` therefore resolves the React version
+itself and passes it explicitly instead of using the plugin's `version: "detect"`. Drop that block once the plugin ships
+the fix. Two plugins (`eslint-plugin-react`, `eslint-plugin-jsx-a11y`) still declare peer ranges that stop at eslint 9;
+verified by probe that their rules run correctly under 10, so the declarations are stale metadata, not breakage — pnpm
+warns, nothing fails.
+
 A major that moves one of those paths **fails the config load**: every consumer's `eslint .` exits with a config error,
 not a rule warning. Same failure when a plugin's own `eslint` peer no longer matches the eslint we resolve.
 `tests/configs.test.js` asserts the exact roster (name **and** loaded object) — `pnpm test` is the cheap check, the

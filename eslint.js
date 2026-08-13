@@ -1,3 +1,6 @@
+import { createRequire } from "node:module"
+import path from "node:path"
+
 import globals from "globals"
 
 const ERROR = "error"
@@ -7,6 +10,19 @@ const OFF = "off"
 const vitestFiles = ["**/__tests__/**/*", "**/*.test.*", "**/*.spec.*"]
 const testFiles = ["**/tests/**", "**/#tests/**", ...vitestFiles]
 const playwrightFiles = ["**/e2e/**"]
+
+// eslint-plugin-react's own `version: "detect"` crashes on eslint 10: detection calls the context.getFilename() that
+// eslint 10 removed (jsx-eslint/eslint-plugin-react#4018, fix unreleased as of 7.37.5). Resolve the version here and
+// pass it explicitly instead. Anchored on the linted project's cwd, not this package, so a consumer's own React is
+// what gets detected; falls back to the newest line when React isn't installed at all.
+const reactVersion = (() => {
+  try {
+    const requireFromProject = createRequire(path.join(process.cwd(), "package.json"))
+    return requireFromProject("react/package.json").version
+  } catch {
+    return "19.0"
+  }
+})()
 
 /** @type {import("eslint").Linter.Config[]} */
 export const config = [
@@ -66,7 +82,7 @@ export const config = [
     },
     settings: {
       react: {
-        version: "detect",
+        version: reactVersion,
       },
       formComponents: ["Form"],
       linkComponents: [

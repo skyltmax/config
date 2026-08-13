@@ -2,14 +2,13 @@
 
 ### Unreleased
 
-- feat: Support eslint 10 (`peerDependencies` widened to `^9.30.0 || ^10.0.0`); the pinned eslint plugins are all
+### [2.0.0] - 2026-08-12
+
+- feat!: Support eslint 10 (`peerDependencies` widened to `^9.30.0 || ^10.0.0`); the pinned eslint plugins are all
   eslint-10 compatible, and `@eslint/js` moved to 10.
 - fix: Resolve the React version for `eslint-plugin-react` in this config instead of using its `version: "detect"`,
   which crashes on eslint 10 (it calls the removed `context.getFilename()` — jsx-eslint/eslint-plugin-react#4018).
   Detection is anchored on the linted project, so consumers keep version-accurate react rules.
-
-### [2.0.0] - 2026-08-12
-
 - feat!: Move all eslint/prettier plugins (and `@total-typescript/ts-reset`) from `peerDependencies` to `dependencies`;
   they now resolve from this package and consumers stop declaring them.
 - feat!: Shrink `peerDependencies` to ranged CLIs: `eslint ^9.30.0`, `prettier ^3.6.0`, `typescript >=5.9 <6.1`.

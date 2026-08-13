@@ -1,0 +1,36 @@
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+
+  // Layer 1 (mechanical) config. The research/orchestration layer lives in docs/upgrades/.
+  // Renovate detects pins and opens bump PRs, the per-PR impact brief (docs/upgrades/RUNBOOK.md) decides what actually
+  // merges.
+  extends: [
+    "config:best-practices",
+    "config:js-lib",
+    ":semanticCommits",
+    ":semanticCommitTypeAll(chore)",
+    ":label(dependencies)",
+    ":timezone(Europe/Tallinn)",
+    "schedule:weekly",
+    ":approveMajorUpdates",
+  ],
+
+  packageRules: [
+    // --- Harbor image: built in skyltmax/infra, tracked here ---
+    // The CHANGELOG_DISPLAYED_<N> marker in .devcontainer/boot.sh still needs a manual commit on the PR, and a Ruby
+    // change in the image needs the GEMS_ALREADY_RESET_<N> marker bumped too (INTERACTIONS §1). Tags carry
+    // <upstream>-<N> rebuild suffixes, which docker versioning would misread as a compatibility suffix — regex
+    // versioning treats <N> as a build counter, so rails-4.0.6-30 -> rails-4.0.6-31 is an update.
+    {
+      matchPackageNames: ["harbor.signmax.cloud/**"],
+      groupName: "harbor images",
+      addLabels: ["cross-repo/infra"],
+      versioning: "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<build>\\d+)$",
+    },
+    // The devcontainer image prefixes its tags with the stack name (devcontainer:rails-4.0.6-30).
+    {
+      matchPackageNames: ["harbor.signmax.cloud/public/devcontainer"],
+      versioning: "regex:^rails-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<build>\\d+)$",
+    },
+  ],
+}

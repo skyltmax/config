@@ -25,7 +25,9 @@ Gem::Specification.new do |s|
 
   # include all tracked files so packaged gem mirrors the repo's config assets
   s.files = Dir.chdir(__dir__) do
-    `git ls-files -z`.split("\x0").reject { |path| path.start_with?(".github/") }
+    `git ls-files -z`.split("\x0").reject do |path|
+      path.start_with?(".github/", "docs/") || path == "renovate.json5"
+    end
   end
   s.require_path = "lib"
 

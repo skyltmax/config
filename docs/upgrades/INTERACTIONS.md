@@ -114,6 +114,9 @@ by Renovate) and pins `eslint`, `prettier` and `typescript` at the same exact ve
 job asserts specific lint/type errors are still reported, so pin drift means CI verifies a different toolchain than the
 one the package ships against.
 
+`file:..` is materialized as a **snapshot copy**, not a live symlink: after changing anything in the root package, run
+`pnpm install` in `fixture/` before its checks mean anything locally (CI installs fresh, so it always sees the change).
+
 Renovate updates a dependency across every file it appears in on one branch (per update type), so a toolchain PR touches
 both `package.json` files and both lockfiles with no rule needed — but check it on every such PR; `fixture/` is
 `.prettierignore`d and easy to forget. The fixture's expected errors are _deliberate failures_: a plugin bump that stops
@@ -127,13 +130,39 @@ the same PR.
 
 ## 9. CI toolchain versions in `with:` blocks are tracked, and need a cross-check
 
-The github-actions manager extracts `with:` values as depType `uses-with` — `node-version: "24"`, `ruby-version: "4.0"`,
-pnpm/action-setup's `version: 11` — and raises ordinary bump PRs for them (a lookup proposed `ruby 4.0 -> 4.0.6`). All
-three mirror something owned elsewhere: the devcontainer image (§1) provides the local toolchain, and `engines.node` is
-the floor consumers must satisfy. The brief's question is "does this match what the image ships?" — a CI Ruby patch the
-image doesn't ship makes CI test something local dev doesn't run.
+The github-actions manager extracts `with:` values as depType `uses-with` — `node-version: "24"` and
+`ruby-version: "4.0"` — and raises ordinary bump PRs for them. (pnpm is not among them: pnpm/action-setup carries no
+`version` input and reads the `packageManager` field, which Renovate tracks as a normal npm dep — §10.) Both mirror
+something owned elsewhere: the devcontainer image (§1) provides the local toolchain, and `engines.node` is the floor
+consumers must satisfy. The brief's question is "does this match what the image ships?".
+
+`ruby-version` stays at minor precision on purpose: `"4.0"` makes ruby/setup-ruby install the latest 4.0.x, so CI floats
+patches with the image instead of pinning one — `renovate.json5` disables patch updates for it (Renovate would rewrite
+it to `4.0.6`). A minor still PRs, proposed as a full version; trim it back to `X.Y` on the branch.
 
 An `engines` floor-raise only ever surfaces as a major (in-range releases satisfy the range), so it queues on the
 dashboard; raising it drops consumers on older Node and is a breaking release. Untracked entirely: `TargetRubyVersion`
 in `rubocop.yml`, `TargetRailsVersion` in `rubocop.rails.yml`, `required_ruby_version` in the gemspec — hand-edit these
 consumer-facing claims when the floor moves.
+
+## 10. Renovate's settle time does not govern lockfile maintenance — pnpm's does
+
+Renovate's `minimumReleaseAge` only filters the update candidates Renovate itself proposes. Lockfile maintenance is
+performed by the package manager, so the weekly PR can pull a transitive published hours ago — and pnpm's own
+supply-chain check (24h `minimumReleaseAge` by default in v11, re-applied to every lockfile entry on install) then fails
+CI on it. PR #22 was exactly this: the worker resolved `get-tsconfig@4.14.2` at ~21h old, and both pnpm jobs died with
+`ERR_PNPM_MINIMUM_RELEASE_AGE_VIOLATION`. That class of failure is transient (entries only age), but the fix is to
+enforce the policy where resolution happens:
+
+- both `pnpm-workspace.yaml` files set `minimumReleaseAge: 4320` (3 days, matching Renovate's npm settle) — any pnpm ≥11
+  resolving this workspace, including Renovate's worker, refuses younger versions outright;
+- `trustLockfile: true` skips re-verification of committed entries on install — entries resolved before the policy can
+  be younger than the cutoff, and every commit lands via a reviewed PR, so the lockfile is the trusted base;
+- `packageManager: "pnpm@<version>"` in both `package.json` files pins the resolver: CI's pnpm/action-setup reads it (no
+  `version` input — the action errors when both disagree) and Renovate's worker installs it, so the same pnpm applies
+  the same policy everywhere. Renovate tracks the field as an ordinary npm dep; keep the two copies on one branch like
+  every other root+fixture pair (§7).
+
+Consequence to remember: a release younger than 3 days is invisible to the whole pipeline — Renovate won't propose it
+and pnpm won't resolve it. For a deliberate early adoption (e.g. an urgent fix), add a temporary
+`minimumReleaseAgeExclude` entry rather than lowering the global cutoff.

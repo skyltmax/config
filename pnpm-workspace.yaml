@@ -1,3 +1,10 @@
 allowBuilds:
   esbuild: true
   unrs-resolver: true
+
+# Supply-chain settle, enforced where RESOLUTION happens (3 days, matching Renovate's npm settle). Renovate's own
+# minimumReleaseAge does not govern lockfile maintenance — its worker runs pnpm, and pnpm reads this file.
+minimumReleaseAge: 4320
+# Skip re-verifying committed lockfile entries on install: entries resolved before this policy existed can be younger
+# than the cutoff, and every commit lands via a reviewed PR, so the lockfile is the trusted base.
+trustLockfile: true

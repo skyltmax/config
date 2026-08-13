@@ -1,2 +1,6 @@
 allowBuilds:
   unrs-resolver: true
+
+# Same supply-chain settle as the root workspace — see ../pnpm-workspace.yaml.
+minimumReleaseAge: 4320
+trustLockfile: true

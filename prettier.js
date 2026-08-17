@@ -46,9 +46,10 @@ export const config = {
       },
     },
   ],
-  // Resolved from this package's own dependencies. Bare names would be resolved by prettier's import() from the
-  // consumer's context, which is exactly the phantom-dependency setup v2 removes.
-  plugins: [import.meta.resolve("prettier-plugin-ignored"), import.meta.resolve("prettier-plugin-tailwindcss")],
+  // Resolved from this package itself — the `ignored` parser is vendored here, tailwindcss comes from our own
+  // dependencies. Bare names would be resolved by prettier's import() from the consumer's context, which is exactly
+  // the phantom-dependency setup v2 removes.
+  plugins: [import.meta.resolve("./prettier-ignored-plugin.js"), import.meta.resolve("prettier-plugin-tailwindcss")],
   tailwindAttributes: ["class", "className", ".*[cC]lassName"],
   tailwindFunctions: ["clsx", "cn", "twcn"],
 }

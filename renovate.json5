@@ -44,5 +44,16 @@
       matchPackageNames: ["harbor.signmax.cloud/public/devcontainer"],
       versioning: "regex:^rails-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<build>\\d+)$",
     },
+
+    // --- abandonment flags we have already ruled on (INTERACTIONS §11) ---
+    // The dashboard's abandoned list is release-inactivity detection, not a deprecation notice. These two were
+    // reviewed and deliberately kept, so the flag is permanent noise that hides the next one; a long threshold mutes
+    // them without muting the rest. Revisit by deleting the entry, not by editing the threshold.
+    // `eslint-plugin-react` and `prettier-plugin-ignored` are gone from the roster entirely, so they cannot be flagged.
+    {
+      matchDatasources: ["npm"],
+      matchPackageNames: ["eslint-plugin-jsx-a11y", "@total-typescript/ts-reset"],
+      abandonmentThreshold: "10 years",
+    },
   ],
 }

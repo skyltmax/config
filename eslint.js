@@ -1,6 +1,3 @@
-import { createRequire } from "node:module"
-import path from "node:path"
-
 import globals from "globals"
 
 const ERROR = "error"
@@ -10,19 +7,6 @@ const OFF = "off"
 const vitestFiles = ["**/__tests__/**/*", "**/*.test.*", "**/*.spec.*"]
 const testFiles = ["**/tests/**", "**/#tests/**", ...vitestFiles]
 const playwrightFiles = ["**/e2e/**"]
-
-// eslint-plugin-react's own `version: "detect"` crashes on eslint 10: detection calls the context.getFilename() that
-// eslint 10 removed (jsx-eslint/eslint-plugin-react#4018, fix unreleased as of 7.37.5). Resolve the version here and
-// pass it explicitly instead. Anchored on the linted project's cwd, not this package, so a consumer's own React is
-// what gets detected; falls back to the newest line when React isn't installed at all.
-const reactVersion = (() => {
-  try {
-    const requireFromProject = createRequire(path.join(process.cwd(), "package.json"))
-    return requireFromProject("react/package.json").version
-  } catch {
-    return "19.0"
-  }
-})()
 
 /** @type {import("eslint").Linter.Config[]} */
 export const config = [
@@ -71,46 +55,39 @@ export const config = [
   // JSX/TSX files
   {
     files: ["**/*.tsx", "**/*.jsx"],
-    plugins: {
-      react: (await import("eslint-plugin-react")).default,
-    },
     languageOptions: {
       parser: (await import("typescript-eslint")).parser,
       parserOptions: {
         jsx: true,
       },
     },
-    settings: {
-      react: {
-        version: reactVersion,
-      },
-      formComponents: ["Form"],
-      linkComponents: [
-        {
-          name: "Link",
-          linkAttribute: "to",
-        },
-        {
-          name: "NavLink",
-          linkAttribute: "to",
-        },
-      ],
-    },
-    rules: {
-      ...(await import("eslint-plugin-react")).default.configs.flat.recommended.rules,
-      ...(await import("eslint-plugin-react")).default.configs.flat["jsx-runtime"].rules,
-      "react/jsx-key": WARN,
-      "react/prop-types": OFF,
-      "react/button-has-type": ERROR,
-      "react/jsx-boolean-value": WARN,
-      "react-hooks/exhaustive-deps": ERROR,
+  },
 
-      "react/jsx-no-leaked-render": [
-        WARN,
-        {
-          validStrategies: ["ternary"],
-        },
-      ],
+  {
+    files: ["**/*.ts?(x)"],
+    ...(await import("@eslint-react/eslint-plugin")).default.configs["recommended-type-checked"],
+  },
+  {
+    files: ["**/*.jsx"],
+    ...(await import("@eslint-react/eslint-plugin")).default.configs.recommended,
+  },
+  {
+    files: ["**/*.ts?(x)", "**/*.jsx"],
+    rules: {
+      // eslint-plugin-react-hooks — React's own plugin, still actively released — stays the authority on these two.
+      // @eslint-react ships its own copies in `recommended`, and both enabled means the same line reported twice.
+      "@eslint-react/rules-of-hooks": OFF,
+      "@eslint-react/exhaustive-deps": OFF,
+
+      // Severities carried over from the eslint-plugin-react config these replace, where both were warnings.
+      "@eslint-react/no-missing-key": WARN, // was react/jsx-key
+      "@eslint-react/no-leaked-conditional-rendering": WARN, // was react/jsx-no-leaked-render
+
+      // Rules we relied on that @eslint-react keeps out of `recommended`. The old names are recorded because
+      // consumers have to rename them in their own `eslint-disable` comments.
+      "@eslint-react/dom-no-missing-button-type": ERROR, // was react/button-has-type
+      "@eslint-react/dom-no-unknown-property": ERROR, // was react/no-unknown-property
+      "@eslint-react/dom-no-unsafe-target-blank": ERROR, // was react/jsx-no-target-blank
     },
   },
 

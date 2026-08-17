@@ -2,6 +2,8 @@
 
 ### Unreleased
 
+- feat!: React 19
+
 ### [2.0.0] - 2026-08-12
 
 - feat!: Support eslint 10 (`peerDependencies` widened to `^9.30.0 || ^10.0.0`); the pinned eslint plugins are all

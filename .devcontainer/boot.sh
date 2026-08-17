@@ -28,20 +28,20 @@ if [ "${GEMS_ALREADY_RESET_1}" != "true" ]; then
   GEMS_ALREADY_RESET_1="true"
 fi
 
-if [ "${CHANGELOG_DISPLAYED_7}" != "true" ]; then
+if [ "${CHANGELOG_DISPLAYED_35}" != "true" ]; then
   if [ -f "/var/lib/smdevc/changelog" ]; then
     printf "\n"
     toilet -f term -t -F border:metal "Latest Changes"
     cat /var/lib/smdevc/changelog
   fi
 
-  CHANGELOG_DISPLAYED_7="true"
+  CHANGELOG_DISPLAYED_35="true"
 fi
 
 echo -e "\
   GEMS_ALREADY_RESET_1=${GEMS_ALREADY_RESET_1}\n\
   PNPM_ALREADY_RESET_1=${PNPM_ALREADY_RESET_1}\n\
-  CHANGELOG_DISPLAYED_7=${CHANGELOG_DISPLAYED_7}" > "${MARKER_FILE}"
+  CHANGELOG_DISPLAYED_35=${CHANGELOG_DISPLAYED_35}" > "${MARKER_FILE}"
 
 printf "\n\n\e[38;2;252;163;17m"
 toilet -f standard "Config"

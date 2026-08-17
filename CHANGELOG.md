@@ -2,6 +2,7 @@
 
 ### Unreleased
 
+### [3.0.0] - 2026-08-17
 - feat!: React 19
 - feat!: Replace `eslint-plugin-react`with `@eslint-react/eslint-plugin`.
 - chore: Vendor the `ignored` prettier parser as `prettier-ignored-plugin.js` and drop the `prettier-plugin-ignored`

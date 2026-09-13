@@ -75,11 +75,11 @@
     "typescript": ">=5.9 <6.1"
   },
   "devDependencies": {
-    "@types/react": "19.2.18",
+    "@types/react": "19.3.0",
     "eslint": "10.10.0",
     "npm-run-all2": "9.0.3",
     "prettier": "3.9.6",
-    "react": "19.2.8",
+    "react": "19.3.0",
     "typescript": "6.0.3",
     "vitest": "5.0.0"
   },

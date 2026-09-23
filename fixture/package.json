@@ -7,7 +7,7 @@
   "engines": {
     "node": ">=24.0.0"
   },
-  "packageManager": "pnpm@11.25.0",
+  "packageManager": "pnpm@11.27.1",
   "scripts": {
     "format": "prettier . --check",
     "lint": "eslint src --max-warnings=0",

@@ -78,7 +78,7 @@
     "@types/react": "19.2.18",
     "eslint": "10.10.0",
     "npm-run-all2": "9.0.3",
-    "prettier": "3.9.6",
+    "prettier": "3.9.9",
     "react": "19.2.8",
     "typescript": "6.0.3",
     "vitest": "5.0.0"

@@ -128,8 +128,21 @@ one the package ships against.
 `pnpm install` in `fixture/` before its checks mean anything locally (CI installs fresh, so it always sees the change).
 
 Renovate updates a dependency across every file it appears in on one branch (per update type), so a toolchain PR touches
-both `package.json` files and both lockfiles with no rule needed — but check it on every such PR; `fixture/` is
-`.prettierignore`d and easy to forget. The fixture's expected errors are _deliberate failures_: a plugin bump that stops
+both `package.json` files with no rule needed. The lockfiles are a different story: the fixture lockfile snapshots the
+root's entire dependency tree through `file:..`, which Renovate skips, so a bump that only touches the root
+`package.json` (any roster dependency) leaves `fixture/pnpm-lock.yaml` stale. pnpm ≤11 tolerated that; pnpm 12's frozen
+install rejects it (`local dependency "@signmax/config" at ".." is outdated` — PR #57). A `postUpgradeTasks` rule in
+`renovate.json5` re-runs `pnpm install --lockfile-only` in the root and in `fixture/` on every npm branch. Its commands
+only run if they match `allowedCommands` in the CE server config (skyltmax/infra `terraform/main/renovate.tf`); a
+mismatch surfaces as an artifact error on the PR, and the fallback is the same two commands run by hand on the branch.
+Check both lockfiles on every npm PR either way; `fixture/` is `.prettierignore`d and easy to forget.
+
+The same rule also covers pnpm's `packageManagerDependencies` document (the first YAML document in both lockfiles,
+pinning pnpm itself). Renovate's lockfile-maintenance run has been dropping it (PR #59; the pnpm 12 bump in #56 arrived
+without it too), and CI's frozen install then fails with `ERR_PNPM_FROZEN_LOCKFILE_WITH_OUTDATED_LOCKFILE`. A local
+`pnpm install --lockfile-only` writes it back, even from a deleted lockfile with Renovate's exact flags, so the cause
+lives in Renovate's runtime and is not yet identified. If a lockfile-maintenance PR still arrives without it, the
+post-upgrade task did not repair it. The fixture's expected errors are _deliberate failures_: a plugin bump that stops
 reporting one fails CI, and the fix is usually the fixture source, not the dependency.
 
 ## 8. pnpm build-script allowlist

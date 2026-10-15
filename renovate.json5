@@ -16,6 +16,28 @@
   ],
 
   packageRules: [
+    // --- regenerate both pnpm lockfiles after every npm update (INTERACTIONS §7) ---
+    // fixture/ consumes this package as `file:..`, which Renovate skips, and its lockfile snapshots the root's
+    // dependency tree — so a root-only bump leaves fixture/pnpm-lock.yaml stale and pnpm 12 fails the fixture job's
+    // frozen install (`local dependency "@signmax/config" at ".." is outdated`, PR #57). The root re-run is a no-op
+    // after a normal bump; on lockfile maintenance it is meant to restore the pnpm `packageManagerDependencies`
+    // document that Renovate's own run has been dropping (PR #56, #59 — locally it does; unconfirmed under CE).
+    // Both commands must match `allowedCommands` in the CE server config
+    // (skyltmax/infra `terraform/main/renovate.tf`), else Renovate reports an artifact error on the PR.
+    // installTools takes the latest pnpm; pnpm switches itself to the `packageManager` version.
+    {
+      matchManagers: ["npm"],
+      postUpgradeTasks: {
+        commands: [
+          "pnpm install --lockfile-only --ignore-scripts --ignore-pnpmfile",
+          "pnpm --dir fixture install --lockfile-only --ignore-scripts --ignore-pnpmfile",
+        ],
+        fileFilters: ["pnpm-lock.yaml", "fixture/pnpm-lock.yaml"],
+        installTools: { node: {}, pnpm: {} },
+        executionMode: "update",
+      },
+    },
+
     // --- ruby-version in the workflows stays at minor precision ---
     // `ruby-version: "4.0"` makes ruby/setup-ruby install the latest 4.0.x, so CI floats patches with the devcontainer
     // image instead of pinning one. Renovate would rewrite it to a full patch version (4.0 -> 4.0.6); disabling patch

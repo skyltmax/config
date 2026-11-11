@@ -48,9 +48,9 @@ config from the **default branch only**, so the order matters:
    image; and the `npm-run-all` → `npm-run-all2` replacement (a rename, not a bump). The dashboard also flags
    **abandoned** packages (no release in a year); at setup time: `npm-run-all` (the replacement PR is the fix),
    `@total-typescript/ts-reset`, `prettier-plugin-ignored`, `eslint-plugin-jsx-a11y`, `eslint-plugin-react` — a prompt
-   to check, not a verdict. Those four have standing verdicts in INTERACTIONS §11 (two kept and muted in
-   `renovate.json5`, one vendored away, one replaced in 4.0.0); a **new** name on that list is the only one that needs
-   research.
+   to check, not a verdict. Those four have standing verdicts in INTERACTIONS §11 and are all gone from the dependencies
+   (`prettier-plugin-ignored` vendored, `eslint-plugin-react` replaced in 3.0.0, `eslint-plugin-jsx-a11y` replaced and
+   `@total-typescript/ts-reset` vendored in 4.0.0); a **new** name on that list is the only one that needs research.
 
 ## The gate: brief every PR before merging
 

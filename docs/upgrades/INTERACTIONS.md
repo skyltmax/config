@@ -27,7 +27,7 @@ coordinated bump across the roster (§3).
 
 ## 3. The plugin roster is the product, and it is loaded by export path
 
-The 14 exact pins in `dependencies` resolve from this package (since 2.0.0), so a bump changes what every consumer lints
+The 13 exact pins in `dependencies` resolve from this package (since 2.0.0), so a bump changes what every consumer lints
 with. `eslint.js` reads a specific export path from most of them:
 
 | package                         | path `eslint.js` depends on                                    |
@@ -35,7 +35,7 @@ with. `eslint.js` reads a specific export path from most of them:
 | `@eslint/js`                    | `.configs.recommended`                                         |
 | `eslint-plugin-prettier`        | `eslint-plugin-prettier/recommended` (subpath export)          |
 | `@eslint-react/eslint-plugin`   | `.configs["recommended-type-checked"]`, `.configs.recommended` |
-| `eslint-plugin-jsx-a11y`        | `.flatConfigs.recommended`                                     |
+| `eslint-plugin-jsx-a11y-x`      | `.configs.recommended`                                         |
 | `eslint-plugin-testing-library` | `.configs["flat/react"]`, `.configs["flat/dom"]`               |
 | `eslint-plugin-jest-dom`        | `.configs["flat/recommended"]`                                 |
 | `@vitest/eslint-plugin`         | `.configs.recommended.rules`                                   |
@@ -47,11 +47,10 @@ rules named individually, so a renamed or removed **rule** is the failure mode t
 A plugin can also break on the **eslint** side: eslint 10 removed the deprecated `context` methods, and
 `eslint-plugin-react` 7.37.5 still called `context.getFilename()` while detecting the React version
 (jsx-eslint/eslint-plugin-react#4018 — fixed upstream, never released). 2.0.0 shimmed around it by resolving the React
-version here; 4.0.0 removed both the shim and the plugin (§11). `@eslint-react` detects the version the same way the
+version here; 3.0.0 removed both the shim and the plugin (§11). `@eslint-react` detects the version the same way the
 shim did — `createRequire(process.cwd())("react")` with a fallback — so a consumer without React installed still loads
-the config. `eslint-plugin-jsx-a11y` is now the only plugin declaring a peer range that stops at eslint 9; verified by
-probe that its rules run correctly under 10, so the declaration is stale metadata, not breakage — pnpm warns, nothing
-fails.
+the config. Since 4.0.0 swapped `eslint-plugin-jsx-a11y` (peers stopped at eslint 9) for `eslint-plugin-jsx-a11y-x`
+(§11), every plugin in the roster declares an eslint peer range that includes 10.
 
 A major that moves one of those paths **fails the config load**: every consumer's `eslint .` exits with a config error,
 not a rule warning. Same failure when a plugin's own `eslint` peer no longer matches the eslint we resolve.
@@ -201,33 +200,63 @@ npm view <pkg> time.modified dist-tags versions            # was there a release
 gh api repos/<owner>/<repo>/compare/<latest-tag>...HEAD -q .ahead_by
 ```
 
-Verdicts as of 2026-08-17, one per flagged package. `renovate.json5` mutes the two settled _keeps_ with a 10-year
-threshold so the next genuinely new flag is visible; drop the entry to reopen the question.
+Verdicts as of 2026-08-17 (`eslint-plugin-jsx-a11y` and `@total-typescript/ts-reset` revisited 2026-11-11), one per
+flagged package. None is a _keep_ any more, so `renovate.json5` mutes nothing; a future settled _keep_ gets a 10-year
+`abandonmentThreshold` entry there so the next genuinely new flag stays visible.
 
 | package                      | upstream state                                                      | verdict                       |
 | ---------------------------- | ------------------------------------------------------------------- | ----------------------------- |
 | `prettier-plugin-ignored`    | 1 release ever (2024-08-30), 3 stars, single maintainer, 20 LOC     | **vendored**, dependency gone |
-| `@total-typescript/ts-reset` | 0.7.0 bumped on `main` but never published; npm stuck at 0.6.1      | **keep** the pin              |
-| `eslint-plugin-jsx-a11y`     | 22 months, 18 unreleased commits (13 dev-deps/docs)                 | **keep** — no replacement     |
-| `eslint-plugin-react`        | 16 months, 38 unreleased commits incl. the eslint-10 fix we shimmed | **replaced** in 4.0.0         |
+| `@total-typescript/ts-reset` | 0.7.0 on `main`, publish failed 2026-04-01; npm stuck at 0.6.1      | **vendored** in 4.0.0         |
+| `eslint-plugin-jsx-a11y`     | 2 years, eslint-10 PRs (#1079, #1081) unreviewed since 2026-02      | **replaced** in 4.0.0         |
+| `eslint-plugin-react`        | 16 months, 38 unreleased commits incl. the eslint-10 fix we shimmed | **replaced** in 3.0.0         |
 
-**`@total-typescript/ts-reset` — keep.** Types-only, zero runtime, so a stale pin ships no code to consumers. Probed
-every augmentation against our own TS 6.0.3: `.filter(Boolean)` still doesn't narrow, `JSON.parse` still returns `any`,
-`Array.isArray` still widens to `any[]`, `includes`/`has`/`indexOf` still reject widened literals, `catch` reason is
-still `any`, `localStorage.x` is still `any`, `new Map()` is still `Map<any, any>`. Stale, not obsolete. `reset.d.ts`
-imports only `/dom`, which _is_ `recommended` + the Storage overrides — the other entrypoints are no-ops on top of it.
-The exit path, if publishing never resumes, is vendoring ~60 lines of interface augmentation the way §4's prettier
-plugin was done; that also picks up the unpublished 0.7.0 changes (a `.filter(Boolean)` fix for inline function
-arguments, and `promise-catch` dropped from `recommended` over `Promise<A> | Promise<B>`).
+**`@total-typescript/ts-reset` — vendored as `ts-reset.d.ts` in 4.0.0.** The 2026-08-17 _keep_ rested on "stale, not
+obsolete": types-only, zero runtime, and every augmentation still changed behaviour on TS 6.0.3. That stopped holding
+once 0.6.1 was shown to ship a bug upstream had already fixed: its `promise-catch` overload makes `.catch()`/`.then()`
+on a `Promise<A> | Promise<B>` union a hard TS2349 error (ts-reset#209), reproduced against TS 6.0.3. 0.7.0 drops it
+from `recommended`, but the 2026-04-01 npm publish failed and nothing has shipped since — so the fix only reaches
+consumers by vendoring. What the vendored file is, and what a future edit has to preserve:
 
-**`eslint-plugin-jsx-a11y` — keep.** Its rules verifiably run under eslint 10 (§3); only the peer range is stale
-metadata. Nothing else covers JSX a11y at this depth: `eslint-plugin-jsx-a11y-x` (es-tooling fork, peers `^9 || ^10`) is
-the fallback if a future eslint major does break it — note it exports `configs.recommended`, not the
-`flatConfigs.recommended` `eslint.js` reads, so the swap is a call-site edit — and `@htmlacademy/eslint-plugin-jsx-a11y`
-is a single-release fork. The only other option is moving a11y linting to another linter entirely, which is not a
-dependency decision.
+- **source**: upstream `src/entrypoints/` at commit `81b3b26` (0.7.0), the `/dom` set — `recommended` + `storage` +
+  `clone-node` — with every declaration verified identical to upstream after normalising formatting. The MIT notice is
+  in the file header.
+- **left out**: `promise-catch` (above) and the new 0.7.0 `map-groupby`/`object-groupby`. Those two declare
+  `Map.groupBy`/`Object.groupBy` outright, so under `typescript.json`'s ES2022 lib they typecheck instead of reporting
+  TS2550 — they would widen the target check, not refine a type.
+- **a global script**: no top-level `import`/`export`, or the interface merges stop reaching the lib types. `reset.d.ts`
+  pulls it in with `/// <reference path>`, which resolves relative to the file, so it needs no `exports` entry;
+  `files: ["*.d.ts"]` ships it, and `npm pack --dry-run` is the check if that list is ever narrowed (same as §4).
+- **`tests/reset.types.ts`** asserts each vendored behaviour plus both exclusions, under `pnpm typecheck`. Caveat: the
+  root `tsconfig.json` includes `**/*.ts`, so the repo typecheck loads `ts-reset.d.ts` directly, not through
+  `reset.d.ts`; the reference path itself was verified once from a packed tarball in a consumer project.
+- **way back**: if upstream publishes again, swap the reference for `import "@total-typescript/ts-reset/dom"` and
+  re-check `promise-catch`/groupBy membership in that release's `/dom`.
 
-**`eslint-plugin-react` — replaced by `@eslint-react/eslint-plugin` in 4.0.0** (#36). Rule IDs changed, so consumers'
+**`eslint-plugin-jsx-a11y` — replaced by `eslint-plugin-jsx-a11y-x` in 4.0.0.** The 2026-08-17 _keep_ rested on the
+rules still running under eslint 10 with only stale peer metadata. By 2026-11-11 the last release (6.10.2) was two years
+old, the last push was dev-dep pins (2026-01-06), and two passing eslint-10 PRs had gone nine months without a
+maintainer reply — no fix was coming. The fork lives under `eslint-community` (moved from `es-tooling`), peers
+`^9 || ^10`, and replaces the ljharb polyfill tree with plain deps (~100 fewer packages for consumers). Before the swap,
+0.2.0 was probed against 6.10.2 under eslint 10.14.0: `recommended` is the same 34 rules with identical severities and
+options, and a 20-violation sample produced the same 24 reports at the same positions (only message wording and doc URLs
+differ). What a future bump has to preserve:
+
+- **`configs.recommended`, not `flatConfigs.recommended`**, and the config carries no `files` key — it is scoped to
+  `**/*.tsx`/`**/*.jsx` at the call site in `eslint.js`.
+- **the plugin key is `jsx-a11y-x`**, so rule IDs and the `settings` key are `jsx-a11y-x/…` / `"jsx-a11y-x"`. Consumers'
+  `jsx-a11y/` disable comments and rule overrides broke with 4.0.0 (`docs/migrations/4.0.0.md`).
+- **`accessible-emoji`, `label-has-for` and `no-onchange` do not exist** in the fork (all deprecated upstream, none in
+  `recommended`).
+- **unreleased on the fork's `main` after 0.2.0**: rules with fixed options start rejecting unknown properties (#108),
+  so the bump that carries it can break consumers passing stray options to `jsx-a11y-x/*` rules.
+- `fixture/src/ui/avatar.tsx` carries one deliberate violation, and the `ci.yml` fixture job asserts
+  `jsx-a11y-x/alt-text` is reported.
+
+`@htmlacademy/eslint-plugin-jsx-a11y` (single release, 0 stars) was not a candidate. Moving a11y linting to another
+linter (oxlint, Biome) remains the only other option, and is not a dependency decision.
+
+**`eslint-plugin-react` — replaced by `@eslint-react/eslint-plugin` in 3.0.0** (#36). Rule IDs changed, so consumers'
 inline `eslint-disable` comments break: it shipped as `feat!:`, never as a Renovate PR. How `eslint.js` wires it, and
 what a future bump has to preserve:
 

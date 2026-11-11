@@ -2,11 +2,26 @@
 
 ### Unreleased
 
+### [4.0.0] - 2026-11-11
+
+Upgrade guide: [docs/migrations/4.0.0.md](docs/migrations/4.0.0.md).
+
+- feat!: Replace `eslint-plugin-jsx-a11y` with `eslint-plugin-jsx-a11y-x`, its maintained `eslint-community` fork with
+  eslint 10 support. Rule IDs and the `settings` key move from `jsx-a11y` to `jsx-a11y-x`, so `eslint-disable` comments
+  and rule overrides naming `jsx-a11y/*` must be renamed. The enabled rules, severities and options are unchanged.
+- chore: Drop ~100 transitive packages (the polyfill tree `eslint-plugin-jsx-a11y` pulled in).
+- feat!: Vendor `@total-typescript/ts-reset` as `ts-reset.d.ts` and drop the dependency; npm is stuck at 0.6.1 because
+  upstream's 0.7.0 publish failed. `reset.d.ts` now carries 0.7.0's `/dom` set: `.catch()`/`.then()` on a
+  `Promise<A> | Promise<B>` union compiles again (the `reason` parameter is `any` again), `.filter(Boolean)` inline in a
+  call argument now type-checks its elements, and `cloneNode()` keeps the element type. 0.7.0's `Map.groupBy`/
+  `Object.groupBy` overrides are left out, since they would make `groupBy` typecheck under the ES2022 lib.
+
 ### [3.0.1] - 2026-11-11
 
 - chore: dependency updates
 
 ### [3.0.0] - 2026-08-17
+
 - feat!: React 19
 - feat!: Replace `eslint-plugin-react`with `@eslint-react/eslint-plugin`.
 - chore: Vendor the `ignored` prettier parser as `prettier-ignored-plugin.js` and drop the `prettier-plugin-ignored`

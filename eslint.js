@@ -93,7 +93,7 @@ export const config = [
 
   {
     files: ["**/*.tsx", "**/*.jsx"],
-    ...(await import("eslint-plugin-jsx-a11y")).default.flatConfigs.recommended,
+    ...(await import("eslint-plugin-jsx-a11y-x")).default.configs.recommended,
   },
 
   // react-hook rules are applicable in ts/js/tsx/jsx, but only with React as a dep

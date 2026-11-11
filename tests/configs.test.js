@@ -39,7 +39,7 @@ const EXPECTED_ESLINT_PLUGINS = [
   "@typescript-eslint",
   "import",
   "jest-dom",
-  "jsx-a11y",
+  "jsx-a11y-x",
   "prettier",
   "react-hooks",
   "testing-library",

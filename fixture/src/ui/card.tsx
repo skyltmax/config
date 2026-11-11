@@ -4,7 +4,7 @@ type CardProps = {
 }
 
 // Every issue below is deliberate: this file is the fixture's proof that the @eslint-react rule set replacing
-// eslint-plugin-react (4.0.0) still reports what the old plugin reported.
+// eslint-plugin-react (3.0.0) still reports what the old plugin reported.
 export function Card({ labels, onDismiss }: CardProps) {
   return (
     <div>

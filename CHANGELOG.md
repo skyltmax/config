@@ -2,6 +2,10 @@
 
 ### Unreleased
 
+### [3.0.1] - 2026-11-11
+
+- chore: dependency updates
+
 ### [3.0.0] - 2026-08-17
 - feat!: React 19
 - feat!: Replace `eslint-plugin-react`with `@eslint-react/eslint-plugin`.

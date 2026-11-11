@@ -54,17 +54,18 @@
     // The CHANGELOG_DISPLAYED_<N> marker in .devcontainer/boot.sh still needs a manual commit on the PR, and a Ruby
     // change in the image needs the GEMS_ALREADY_RESET_<N> marker bumped too (INTERACTIONS §1). Tags carry
     // <upstream>-<N> rebuild suffixes, which docker versioning would misread as a compatibility suffix — regex
-    // versioning treats <N> as a build counter, so rails-4.0.6-30 -> rails-4.0.6-31 is an update.
+    // versioning treats <N> as a build counter, so 4.0.6-30 -> 4.0.6-31 is an update.
     {
       matchPackageNames: ["harbor.signmax.cloud/**"],
       groupName: "harbor images",
       addLabels: ["cross-repo/infra"],
       versioning: "regex:^(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<build>\\d+)$",
     },
-    // The devcontainer image prefixes its tags with the stack name (devcontainer:rails-4.0.6-30).
+    // The devcontainer image is tagged with the bare build counter (devcontainer:38). Captured as `patch`, not `major`,
+    // so a rebuild stays a patch update in the group instead of queueing on the dashboard via :approveMajorUpdates.
     {
-      matchPackageNames: ["harbor.signmax.cloud/public/devcontainer"],
-      versioning: "regex:^rails-(?<major>\\d+)\\.(?<minor>\\d+)\\.(?<patch>\\d+)-(?<build>\\d+)$",
+      matchPackageNames: ["harbor.signmax.cloud/library/devcontainer"],
+      versioning: "regex:^(?<patch>\\d+)$",
     },
 
     // --- abandonment flags we have already ruled on (INTERACTIONS §11) ---

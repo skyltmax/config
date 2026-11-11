@@ -5,9 +5,9 @@ this file; when an upgrade goes sideways for a reason not listed here, add the e
 
 ## 1. The devcontainer image is built in skyltmax/infra; Renovate bumps the pin here
 
-`.devcontainer/docker-compose.yml` points at `harbor.signmax.cloud/public/devcontainer` with `rails-<upstream>-<N>`
-rebuild-suffix tags built in skyltmax/infra. Renovate tracks the pin (regex versioning for the `-N` suffix); three
-things stay manual on an image PR:
+`.devcontainer/docker-compose.yml` points at `harbor.signmax.cloud/library/devcontainer` with bare `<N>` build-counter
+tags built in skyltmax/infra. Renovate tracks the pin (regex versioning, `<N>` captured as `patch` so a rebuild is not
+major-gated); three things stay manual on an image PR:
 
 - bump `CHANGELOG_DISPLAYED_<N>` in `.devcontainer/boot.sh`, or the new image's changelog never prints;
 - on a Ruby change, bump `GEMS_ALREADY_RESET_<N>` too — the `/usr/local/bundle` volume outlives the image, and gems

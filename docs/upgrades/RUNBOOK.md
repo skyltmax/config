@@ -97,7 +97,7 @@ the product (§3). The config carries no risk heuristics beyond major-gating; th
    `lockFileMaintenance` PR within its gemspec range. Review that PR's `Gemfile.lock` diff. A rubocop major will never
    appear by any Renovate path (§6).
 5. **Harbor:** confirm the CE hostRule authenticates (a local dry-run logs `Failed to look up docker package …`) and the
-   regex versioning orders rebuild suffixes — `rails-4.0.6-31` must show as an update to `rails-4.0.6-30`; a wrong match
+   regex versioning orders the devcontainer build counter — `39` must show as a patch update to `38`; a wrong match
    shows "no update" while new images keep publishing. `docker:pinDigests` appends `@sha256:…` on the first server-side
    run.
 6. **Advisories:** Renovate raises no `[SECURITY]` PRs (`osvVulnerabilityAlerts` is off; the CE app lacks

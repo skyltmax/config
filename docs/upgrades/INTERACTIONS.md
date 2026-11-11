@@ -219,17 +219,28 @@ from `recommended`, but the 2026-04-01 npm publish failed and nothing has shippe
 consumers by vendoring. What the vendored file is, and what a future edit has to preserve:
 
 - **source**: upstream `src/entrypoints/` at commit `81b3b26` (0.7.0), the `/dom` set — `recommended` + `storage` +
-  `clone-node` — with every declaration verified identical to upstream after normalising formatting. The MIT notice is
-  in the file header.
+  `clone-node` — with every declaration verified identical to upstream after normalising formatting, except the one
+  deviation below. The MIT notice is in the file header.
+- **deviation (4.0.1)**: `filter-boolean` returns `NoInfer<NonFalsy<S>>[]`, not upstream's `NonFalsy<NoInfer<S>>[]`.
+  4.0.0 shipped upstream's verbatim and it broke `.filter(Boolean)` narrowing for every object element type: TS keeps
+  the `NoInfer` wrapper on object types, so `NonFalsy` never distributes — `(Obj | null)[]` stayed
+  `NoInfer<Obj | null>[]`, correct inline arguments and generic `(U | null)[]` were rejected, and only primitive unions
+  narrowed. The 4.0.0 test missed it because it only asserted a primitive union. Of the candidates probed on TS 5.9.3
+  and 6.0.3, only the outer `NoInfer` passes all of: object/mixed/readonly/generic narrowing, the #233 inline check,
+  correct inline arguments, union-of-arrays with a normal predicate, and generic consumers (`takeFirst(xs.filter(…))`).
+  0.6.1's `NonFalsy<S>` brings #233 back; a non-generic `NonFalsy<T>` breaks `.filter(x => …)` on `string[] | number[]`.
+  Cosmetic cost: hovers read `NoInfer<Obj>[]`. Re-check this if upstream ever changes its signature.
 - **left out**: `promise-catch` (above) and the new 0.7.0 `map-groupby`/`object-groupby`. Those two declare
   `Map.groupBy`/`Object.groupBy` outright, so under `typescript.json`'s ES2022 lib they typecheck instead of reporting
   TS2550 — they would widen the target check, not refine a type.
 - **a global script**: no top-level `import`/`export`, or the interface merges stop reaching the lib types. `reset.d.ts`
   pulls it in with `/// <reference path>`, which resolves relative to the file, so it needs no `exports` entry;
   `files: ["*.d.ts"]` ships it, and `npm pack --dry-run` is the check if that list is ever narrowed (same as §4).
-- **`tests/reset.types.ts`** asserts each vendored behaviour plus both exclusions, under `pnpm typecheck`. Caveat: the
-  root `tsconfig.json` includes `**/*.ts`, so the repo typecheck loads `ts-reset.d.ts` directly, not through
-  `reset.d.ts`; the reference path itself was verified once from a packed tarball in a consumer project.
+- **`tests/reset.types.ts`** asserts each vendored behaviour plus both exclusions, under `pnpm typecheck` — for
+  `filter-boolean`, object, mixed, readonly and generic element types as well as primitives; it fails against both the
+  4.0.0 and the 0.6.1 signature. Caveat: the root `tsconfig.json` includes `**/*.ts`, so the repo typecheck loads
+  `ts-reset.d.ts` directly, not through `reset.d.ts`; the reference path itself was verified once from a packed tarball
+  in a consumer project.
 - **way back**: if upstream publishes again, swap the reference for `import "@total-typescript/ts-reset/dom"` and
   re-check `promise-catch`/groupBy membership in that release's `/dom`.
 

@@ -2,6 +2,14 @@
 
 ### Unreleased
 
+### [4.0.1] - 2026-11-11
+
+- fix: `.filter(Boolean)` narrows arrays of objects again. 4.0.0 vendored ts-reset 0.7.0's `filter` override verbatim,
+  and its `NonFalsy<NoInfer<S>>` return type left any array with object members un-narrowed (`(Obj | null)[]` stayed
+  `NoInfer<Obj | null>[]`), rejected correct `.filter(Boolean)` arguments, and broke generic `(U | null)[]`. The
+  vendored override now returns `NoInfer<NonFalsy<S>>[]`, which narrows every element type and keeps the inline argument
+  check 4.0.0 added. Hovers show `NoInfer<Obj>[]`; it is assignable to `Obj[]`.
+
 ### [4.0.0] - 2026-11-11
 
 Upgrade guide: [docs/migrations/4.0.0.md](docs/migrations/4.0.0.md).

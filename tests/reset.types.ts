@@ -34,10 +34,33 @@ export type Checks = [
   Expect<Equal<typeof _cloned, HTMLDivElement>>,
 ]
 
-// filter-boolean inline as an argument still checks the elements (ts-reset#233; 0.6.1 let this compile)
+// filter-boolean on object element types. Upstream 0.7.0's `NonFalsy<NoInfer<S>>` left all of these un-narrowed (4.0.0
+// shipped that); the vendored `NoInfer<NonFalsy<S>>` must keep them assignable. Assignability, not Equal: the result
+// reads `NoInfer<Obj>[]`, which is what consumers' code sees anyway.
+type Obj = { id: string }
+declare const objects: (Obj | null)[]
+declare const mixed: (Obj | string | null | 0 | "")[]
+declare const readonlyObjects: readonly (Obj | undefined)[]
+export const _objects: Obj[] = objects.filter(Boolean)
+export const _mixed: (Obj | string)[] = mixed.filter(Boolean)
+export const _readonlyObjects: Obj[] = readonlyObjects.filter(Boolean)
+export const _chained: string[] = objects.filter(Boolean).map(o => o.id)
+export function _generic<U>(xs: (U | null | undefined)[]): U[] {
+  return xs.filter(Boolean)
+}
+declare function takeFirst<U>(xs: U[]): U
+export const _inferred: Obj = takeFirst(objects.filter(Boolean))
+
+// filter-boolean inline as an argument still checks the elements (ts-reset#233; 0.6.1 let this compile) …
 declare function pet(animals: readonly { type: string; name: string }[]): void
 // @ts-expect-error — `{ type: "dog" }` is missing `name`
 pet([{ type: "cat", name: "Fluffy" }, { type: "dog" }].filter(Boolean))
+// … and still accepts a correct one (4.0.0 rejected this)
+pet([{ type: "cat", name: "Fluffy" }, null].filter(Boolean))
+
+// filter with a normal predicate on a union of arrays still falls through to the built-in overload
+declare const unionOfArrays: string[] | number[]
+void unionOfArrays.filter(x => typeof x === "string")
 
 // array-includes: a widened value is accepted without a cast
 literals.includes(widened)

@@ -7,6 +7,9 @@
 // - `promise-catch`, which 0.7.0 itself drops from `recommended`: its extra overload makes `.catch()`/`.then()` on a
 //   `Promise<A> | Promise<B>` union a hard TS2349 error (ts-reset#209).
 //
+// One deliberate deviation from upstream: `filter-boolean` returns `NoInfer<NonFalsy<S>>[]` instead of 0.7.0's
+// `NonFalsy<NoInfer<S>>[]` — see the comment on that section.
+//
 // Must stay a global script (no top-level import/export): every declaration here merges into a lib interface.
 // docs/upgrades/INTERACTIONS.md §11 has the provenance and the way back to the package.
 //
@@ -52,15 +55,21 @@ interface Body {
 }
 
 // --- filter-boolean: `.filter(Boolean)` removes falsy members from the element type ---
-// NoInfer<S> prevents contextual typing from flowing backward through S when .filter(Boolean) is used inline as a
-// function argument, which would silently skip structural checks on array elements (ts-reset#233). The <S extends T>
-// generic keeps overload resolution correct so non-Boolean predicates on union arrays fall through to the built-in.
+// NoInfer stops contextual typing from flowing backward into S when .filter(Boolean) is used inline as a function
+// argument, which would silently skip structural checks on array elements (ts-reset#233). The <S extends T> generic
+// keeps overload resolution correct so non-Boolean predicates on union arrays fall through to the built-in.
+//
+// DEVIATION from upstream 0.7.0, which returns `TSReset.NonFalsy<NoInfer<S>>[]`: TS keeps the NoInfer wrapper on object
+// types, so NonFalsy never distributes over it — `(Obj | null)[]` stayed `NoInfer<Obj | null>[]`, and correct inline
+// calls and generic `(U | null)[]` were rejected (only primitive unions narrowed). Wrapping the whole result keeps the
+// #233 inference block and lets NonFalsy resolve; the only visible difference is hovers reading `NoInfer<Obj>[]`.
+// tests/reset.types.ts covers both. Upstream has no issue filed for this as of 2026-11-11.
 interface Array<T> {
-  filter<S extends T>(predicate: BooleanConstructor, thisArg?: any): TSReset.NonFalsy<NoInfer<S>>[]
+  filter<S extends T>(predicate: BooleanConstructor, thisArg?: any): NoInfer<TSReset.NonFalsy<S>>[]
 }
 
 interface ReadonlyArray<T> {
-  filter<S extends T>(predicate: BooleanConstructor, thisArg?: any): TSReset.NonFalsy<NoInfer<S>>[]
+  filter<S extends T>(predicate: BooleanConstructor, thisArg?: any): NoInfer<TSReset.NonFalsy<S>>[]
 }
 
 // --- is-array: `Array.isArray` narrows to unknown[] instead of any[] ---

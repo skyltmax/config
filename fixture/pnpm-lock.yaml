@@ -757,8 +757,8 @@ packages:
       eslint-import-resolver-node:
         optional: true
 
-  eslint-plugin-jest-dom@5.10.1:
-    resolution: {integrity: sha512-IIJdzbACbhJUJyMAqpA9E9gxp1Gv29TeQ3DtL+pepwP8Oq2WiqjOB2HbnEIs23h0ewdKIZRDI56yLro2eUO+DA==}
+  eslint-plugin-jest-dom@5.11.0:
+    resolution: {integrity: sha512-w6ejV2uyb9vLpII6ga8J62IKjHIbU68V4cBWkqNylTXxAPn5uAJ71OlLJhZ9kJF2UJZtAQSxcgH/SR0HjxnHtg==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0, npm: '>=6', yarn: '>=1'}
     peerDependencies:
       '@testing-library/dom': ^8.0.0 || ^9.0.0 || ^10.0.0
@@ -1560,7 +1560,7 @@ snapshots:
       eslint: 10.14.0
       eslint-config-prettier: 10.1.8(eslint@10.14.0)
       eslint-plugin-import-x: 4.18.1(@typescript-eslint/utils@8.72.2(eslint@10.14.0)(typescript@6.0.3))(eslint@10.14.0)
-      eslint-plugin-jest-dom: 5.10.1(eslint@10.14.0)
+      eslint-plugin-jest-dom: 5.11.0(eslint@10.14.0)
       eslint-plugin-jsx-a11y-x: 0.2.0(eslint@10.14.0)
       eslint-plugin-prettier: 5.5.7(eslint-config-prettier@10.1.8(eslint@10.14.0))(eslint@10.14.0)(prettier@3.10.1)
       eslint-plugin-react-hooks: 7.1.1(eslint@10.14.0)
@@ -1871,7 +1871,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-jest-dom@5.10.1(eslint@10.14.0):
+  eslint-plugin-jest-dom@5.11.0(eslint@10.14.0):
     dependencies:
       eslint: 10.14.0
       requireindex: 1.2.0
